@@ -6,7 +6,7 @@
 Brasil API lookup library for Elixir with an easy-to-use API for brazilian data.
 
 ## Features
- - [ ] **Bank**
+ - [x] **Bancos**
  - [ ] **Câmbio**
  - [ ] **CEP V2**
  - [ ] **CNPJ**
