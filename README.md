@@ -20,7 +20,7 @@ Brasil API lookup library for Elixir with an easy-to-use API for brazilian data 
 - [ ] **ISBN**
 - [ ] **NCM**
 - [x] **PIX**
-- [ ] **Registros BR**
+- [x] **Registros BR**
 - [x] **Rates**
 
 ## Installation
@@ -224,6 +224,32 @@ Then run:
 {:error, %{status: 500, message: "Server error"}} = Brasilapi.get_pix_participants()  # when API is down
 ```
 
+### RegistroBR (Brazilian Domain Registration)
+
+```elixir
+# Get domain information for .br domains
+{:ok, domain} = Brasilapi.get_domain_info("brasilapi.com.br")
+# domain =>
+# %Brasilapi.RegistroBr.Domain{
+#   status_code: 2,
+#   status: "REGISTERED",
+#   fqdn: "brasilapi.com.br",
+#   hosts: ["bob.ns.cloudflare.com", "lily.ns.cloudflare.com"],
+#   publication_status: "published",
+#   expires_at: "2022-09-23T00:00:00-03:00",
+#   suggestions: ["agr.br", "app.br", "art.br", "blog.br", "dev.br", ...]
+# }
+
+# Check if domain is available
+{:ok, domain} = Brasilapi.get_domain_info("available-domain.com.br")
+# domain.status => "AVAILABLE"
+# domain.suggestions => ["net.br", "org.br", "edu.br", ...]
+
+# Error handling
+{:error, %{status: 400, message: "Bad request"}} = Brasilapi.get_domain_info("invalid-domain")
+{:error, %{message: "Domain must be a string"}} = Brasilapi.get_domain_info(123)
+```
+
 ## Response Types with Structs
 
 For better type safety and developer experience, BrasilAPI provides struct definitions for all response types. You can use these structs to work with typed data instead of raw maps:
@@ -258,6 +284,10 @@ For better type safety and developer experience, BrasilAPI provides struct defin
 {:ok, participants} = Brasilapi.get_pix_participants()
 [%Brasilapi.Pix.Participant{} = participant | _] = participants
 # participant => %Brasilapi.Pix.Participant{ispb: "360305", nome: "CAIXA ECONOMICA FEDERAL", nome_reduzido: "CAIXA ECONOMICA FEDERAL", modalidade_participacao: "PDCT", tipo_participacao: "DRCT", inicio_operacao: "2020-11-03T09:30:00.000Z"}
+
+# RegistroBR domain struct
+{:ok, %Brasilapi.RegistroBr.Domain{} = domain} = Brasilapi.get_domain_info("brasilapi.com.br")
+# domain => %Brasilapi.RegistroBr.Domain{status_code: 2, status: "REGISTERED", fqdn: "brasilapi.com.br", hosts: ["bob.ns.cloudflare.com", "lily.ns.cloudflare.com"], publication_status: "published", expires_at: "2022-09-23T00:00:00-03:00", suggestions: ["agr.br", "app.br", ...]}
 ```
 
 ### Available Structs
@@ -269,6 +299,7 @@ For better type safety and developer experience, BrasilAPI provides struct defin
 - `Brasilapi.Feriados.Holiday` - National holiday information with date, name, and type
 - `Brasilapi.Pix.Participant` - PIX participant information with ISPB, names, and participation details
 - `Brasilapi.Rates.Rate` - Tax rates and official indices with name and value
+- `Brasilapi.RegistroBr.Domain` - Brazilian domain registration information with status, hosts, and suggestions
 
 ## Configuration
 

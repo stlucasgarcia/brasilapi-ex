@@ -34,9 +34,12 @@ defmodule Brasilapi do
       # Get PIX participants
       {:ok, participants} = Brasilapi.get_pix_participants()
 
+      # Get domain information
+      {:ok, domain} = Brasilapi.get_domain_info("brasilapi.com.br")
+
   """
 
-  alias Brasilapi.{Banks, Cep, Cnpj, Ddd, Feriados, Pix, Rates}
+  alias Brasilapi.{Banks, Cep, Cnpj, Ddd, Feriados, Pix, Rates, RegistroBr}
 
   @doc """
   Get all banks from BrasilAPI.
@@ -82,4 +85,9 @@ defmodule Brasilapi do
   Get all PIX participants.
   """
   defdelegate get_pix_participants(), to: Pix, as: :get_participants
+
+  @doc """
+  Get Brazilian domain (.br) registration information.
+  """
+  defdelegate get_domain_info(domain), to: RegistroBr, as: :get_domain_info
 end
