@@ -19,7 +19,7 @@ Brasil API lookup library for Elixir with an easy-to-use API for brazilian data 
 - [ ] **IBGE**
 - [ ] **ISBN**
 - [ ] **NCM**
-- [ ] **PIX**
+- [x] **PIX**
 - [ ] **Registros BR**
 - [x] **Rates**
 
@@ -194,6 +194,36 @@ Then run:
 {:error, %{message: "Acronym must be a string"}} = Brasilapi.get_rate_by_acronym(123)
 ```
 
+### PIX (Brazilian Instant Payment System)
+
+```elixir
+# Get all PIX participants
+{:ok, participants} = Brasilapi.get_pix_participants()
+# participants =>
+# [
+#   %Brasilapi.Pix.Participant{
+#     ispb: "360305",
+#     nome: "CAIXA ECONOMICA FEDERAL",
+#     nome_reduzido: "CAIXA ECONOMICA FEDERAL",
+#     modalidade_participacao: "PDCT",
+#     tipo_participacao: "DRCT",
+#     inicio_operacao: "2020-11-03T09:30:00.000Z"
+#   },
+#   %Brasilapi.Pix.Participant{
+#     ispb: "00000000",
+#     nome: "BANCO DO BRASIL S.A.",
+#     nome_reduzido: "BCO DO BRASIL S.A.",
+#     modalidade_participacao: "DRCT",
+#     tipo_participacao: "DRCT",
+#     inicio_operacao: "2020-10-16T08:00:00.000Z"
+#   },
+#   # ... more participants
+# ]
+
+# Error handling
+{:error, %{status: 500, message: "Server error"}} = Brasilapi.get_pix_participants()  # when API is down
+```
+
 ## Response Types with Structs
 
 For better type safety and developer experience, BrasilAPI provides struct definitions for all response types. You can use these structs to work with typed data instead of raw maps:
@@ -223,6 +253,11 @@ For better type safety and developer experience, BrasilAPI provides struct defin
 # Tax rate struct
 {:ok, %Brasilapi.Rates.Rate{} = rate} = Brasilapi.get_rate_by_acronym("CDI")
 # rate => %Brasilapi.Rates.Rate{nome: "CDI", valor: 13.65}
+
+# PIX participant struct
+{:ok, participants} = Brasilapi.get_pix_participants()
+[%Brasilapi.Pix.Participant{} = participant | _] = participants
+# participant => %Brasilapi.Pix.Participant{ispb: "360305", nome: "CAIXA ECONOMICA FEDERAL", nome_reduzido: "CAIXA ECONOMICA FEDERAL", modalidade_participacao: "PDCT", tipo_participacao: "DRCT", inicio_operacao: "2020-11-03T09:30:00.000Z"}
 ```
 
 ### Available Structs
@@ -232,6 +267,7 @@ For better type safety and developer experience, BrasilAPI provides struct defin
 - `Brasilapi.Cnpj.Company` - Company information with comprehensive business data
 - `Brasilapi.Ddd.Info` - DDD/Area code information with state and cities
 - `Brasilapi.Feriados.Holiday` - National holiday information with date, name, and type
+- `Brasilapi.Pix.Participant` - PIX participant information with ISPB, names, and participation details
 - `Brasilapi.Rates.Rate` - Tax rates and official indices with name and value
 
 ## Configuration
@@ -265,6 +301,7 @@ I am working towards a stable 1.0.0 release with improved consistency and compre
   - `get_all_banks()` → `get_banks()`
   - `get_all_rates()` → `get_rates()`
   - Similar patterns across all resource types
+- **BrasilAPI documentation**: Include the URL to the official BrasilAPI documentation for each endpoint in the function docs for easy reference
 
 ### 🚀 Complete API Coverage
 

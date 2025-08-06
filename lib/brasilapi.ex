@@ -31,9 +31,12 @@ defmodule Brasilapi do
       # Get a specific tax rate
       {:ok, rate} = Brasilapi.get_rate_by_acronym("CDI")
 
+      # Get PIX participants
+      {:ok, participants} = Brasilapi.get_pix_participants()
+
   """
 
-  alias Brasilapi.{Banks, Cep, Cnpj, Ddd, Feriados, Rates}
+  alias Brasilapi.{Banks, Cep, Cnpj, Ddd, Feriados, Pix, Rates}
 
   @doc """
   Get all banks from BrasilAPI.
@@ -74,4 +77,9 @@ defmodule Brasilapi do
   Get a specific tax rate or index by its name/acronym.
   """
   defdelegate get_rate_by_acronym(acronym), to: Rates, as: :get_by_acronym
+
+  @doc """
+  Get all PIX participants.
+  """
+  defdelegate get_pix_participants(), to: Pix, as: :get_participants
 end
