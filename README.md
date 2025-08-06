@@ -40,7 +40,7 @@ Then run:
 
 ## Usage
 
-### Banks (Bancos)
+### Bancos (Banks)
 
 ```elixir
 # Get all banks
@@ -157,7 +157,7 @@ config :brasilapi,
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/stlucasgarcia/brasilapi. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [code of conduct](https://github.com/stlucasgarcia/brasilapi/blob/main/CODE_OF_CONDUCT.md).
+Bug reports and pull requests are welcome on GitHub at https://github.com/stlucasgarcia/brasilapi-ex. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [code of conduct](https://github.com/stlucasgarcia/brasilapi/blob/main/CODE_OF_CONDUCT.md).
 
 ## License
 
