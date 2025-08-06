@@ -5,7 +5,7 @@ defmodule Brasilapi.MixProject do
     [
       app: :brasilapi,
       name: "BrasilAPI",
-      version: "0.1.3",
+      version: "0.1.4",
       elixir: "~> 1.18",
       description: description(),
       package: package(),
