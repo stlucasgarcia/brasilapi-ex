@@ -16,9 +16,12 @@ defmodule Brasilapi do
       # Get CEP information
       {:ok, cep_data} = Brasilapi.get_cep("89010025")
 
+      # Get CNPJ information
+      {:ok, company} = Brasilapi.get_cnpj("19131243000197")
+
   """
 
-  alias Brasilapi.{Banks, Cep}
+  alias Brasilapi.{Banks, Cep, Cnpj}
 
   @doc """
   Get all banks from BrasilAPI.
@@ -34,4 +37,9 @@ defmodule Brasilapi do
   Get CEP (postal code) information using the v2 endpoint.
   """
   defdelegate get_cep(cep), to: Cep, as: :get_by_cep
+
+  @doc """
+  Get company information by CNPJ.
+  """
+  defdelegate get_cnpj(cnpj), to: Cnpj, as: :get_by_cnpj
 end

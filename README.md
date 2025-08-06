@@ -3,13 +3,13 @@
 
 </div>
 
-Brasil API lookup library for Elixir with an easy-to-use API for brazilian data.
+Brasil API lookup library for Elixir with an easy-to-use API for brazilian data including banks, postal codes (CEP), and company information (CNPJ).
 
 ## Features
  - [x] **Bancos**
  - [ ] **Câmbio**
  - [x] **CEP V2**
- - [ ] **CNPJ**
+ - [x] **CNPJ**
  - [ ] **Corretoras**
  - [ ] **CPTEC**
  - [ ] **DDD**
@@ -59,9 +59,9 @@ Then run:
 
 ```elixir
 # Find address by CEP (postal code) - supports multiple providers with fallback
-{:ok, cep_data} = Brasilapi.get_cep("89010025")
-# cep_data =>
-# %Brasilapi.Cep.CepData{
+{:ok, address} = Brasilapi.get_cep("89010025")
+# address =>
+# %Brasilapi.Cep.Address{
 #   cep: "89010025",
 #   state: "SC",
 #   city: "Blumenau",
@@ -72,13 +72,43 @@ Then run:
 # }
 
 # CEP can be provided as string or integer, with or without formatting
-{:ok, cep_data} = Brasilapi.get_cep("89010-025")  # formatted
-{:ok, cep_data} = Brasilapi.get_cep(89010025)     # integer
-{:ok, cep_data} = Brasilapi.get_cep("89010025")   # string
+{:ok, address} = Brasilapi.get_cep("89010-025")  # formatted
+{:ok, address} = Brasilapi.get_cep(89010025)     # integer
+{:ok, address} = Brasilapi.get_cep("89010025")   # string
 
 # Error handling
 {:error, %{status: 404, message: "Not found"}} = Brasilapi.get_cep("00000000")
 {:error, %{message: "CEP must be exactly 8 digits"}} = Brasilapi.get_cep("123")
+```
+
+### CNPJ (Company Registry)
+
+```elixir
+# Find company information by CNPJ
+{:ok, company} = Brasilapi.get_cnpj("11000000000197")
+# company =>
+# %Brasilapi.Cnpj.Company{
+#   cnpj: "11000000000197",
+#   razao_social: "ACME INC",
+#   nome_fantasia: "ACME CORPORATION",
+#   uf: "SP",
+#   municipio: "SAO PAULO",
+#   situacao_cadastral: 2,
+#   descricao_situacao_cadastral: "ATIVA",
+#   cnae_fiscal: 6201500,
+#   cnae_fiscal_descricao: "Desenvolvimento de programas de computador sob encomenda",
+#   capital_social: 100000,
+#   # ... many more fields available
+# }
+
+# CNPJ can be provided as string or integer, with or without formatting
+{:ok, company} = Brasilapi.get_cnpj("11.000.000/0001-97")  # formatted
+{:ok, company} = Brasilapi.get_cnpj(11000000000197)        # integer
+{:ok, company} = Brasilapi.get_cnpj("11000000000197")      # string
+
+# Error handling
+{:error, %{status: 404, message: "Not found"}} = Brasilapi.get_cnpj("00000000000000")
+{:error, %{message: "Invalid CNPJ format. Must be 14 digits."}} = Brasilapi.get_cnpj("123")
 ```
 
 ## Response Types with Structs
@@ -90,15 +120,20 @@ For better type safety and developer experience, BrasilAPI provides struct defin
 {:ok, %Brasilapi.Banks.Bank{} = bank} = Brasilapi.get_bank_by_code(1)
 # bank => %Brasilapi.Banks.Bank{ispb: "00000000", name: "BCO DO BRASIL S.A.", code: 1, full_name: "Banco do Brasil S.A."}
 
-# CEP struct
-{:ok, %Brasilapi.Cep.CepData{} = cep_data} = Brasilapi.get_cep("89010025")
-# cep_data => %Brasilapi.Cep.CepData{cep: "89010025", state: "SC", city: "Blumenau", neighborhood: "Centro", street: "Rua Doutor Luiz de Freitas Melro", service: "viacep", location: %{type: "Point", coordinates: %{}}}
+# Address struct
+{:ok, %Brasilapi.Cep.Address{} = address} = Brasilapi.get_cep("89010025")
+# address => %Brasilapi.Cep.Address{cep: "89010025", state: "SC", city: "Blumenau", neighborhood: "Centro", street: "Rua Doutor Luiz de Freitas Melro", service: "viacep", location: %{type: "Point", coordinates: %{}}}
+
+# Company struct
+{:ok, %Brasilapi.Cnpj.Company{} = company} = Brasilapi.get_cnpj("11000000000197")
+# company => %Brasilapi.Cnpj.Company{cnpj: "11000000000197", razao_social: "ACME INC", nome_fantasia: "ACME CORPORATION", uf: "SP", municipio: "SAO PAULO", situacao_cadastral: 2, descricao_situacao_cadastral: "ATIVA", ...}
 ```
 
 ### Available Structs
 
 - `Brasilapi.Banks.Bank` - Bank information
-- `Brasilapi.Cep.CepData` - CEP/Address information with location data
+- `Brasilapi.Cep.Address` - CEP/Address information with location data
+- `Brasilapi.Cnpj.Company` - Company information with comprehensive business data
 
 ## Configuration
 
