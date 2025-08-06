@@ -40,7 +40,6 @@ defmodule Brasilapi.Feriados.HolidayTest do
              } = result
     end
 
-
     test "creates Holiday struct from empty map" do
       result = Holiday.from_map(%{})
 

@@ -6,21 +6,22 @@
 Brasil API lookup library for Elixir with an easy-to-use API for brazilian data including banks, postal codes (CEP), company information (CNPJ), area codes (DDD), and national holidays.
 
 ## Features
- - [x] **Bancos**
- - [ ] **Câmbio**
- - [x] **CEP V2**
- - [x] **CNPJ**
- - [ ] **Corretoras**
- - [ ] **CPTEC**
- - [x] **DDD**
- - [x] **Feriados Nacionais**
- - [ ] **FIPE**
- - [ ] **IBGE**
- - [ ] **ISBN**
- - [ ] **NCM**
- - [ ] **PIX**
- - [ ] **Registros BR**
- - [ ] **Taxas**
+
+- [x] **Bancos**
+- [ ] **Câmbio**
+- [x] **CEP V2**
+- [x] **CNPJ**
+- [ ] **Corretoras**
+- [ ] **CPTEC**
+- [x] **DDD**
+- [x] **Feriados Nacionais**
+- [ ] **FIPE**
+- [ ] **IBGE**
+- [ ] **ISBN**
+- [ ] **NCM**
+- [ ] **PIX**
+- [ ] **Registros BR**
+- [ ] **Taxas**
 
 ## Installation
 
@@ -29,7 +30,7 @@ Add `brasilapi` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:brasilapi, "~> 0.1.0"}
+    {:brasilapi, "~> 0.1.3"}
   ]
 end
 ```
@@ -122,7 +123,7 @@ Then run:
 #   cities: [
 #     "EMBU",
 #     "VÁRZEA PAULISTA",
-#     "VARGEM GRANDE PAULISTA", 
+#     "VARGEM GRANDE PAULISTA",
 #     "SÃO PAULO",
 #     # ... more cities
 #   ]
@@ -152,7 +153,7 @@ Then run:
 #   },
 #   %Brasilapi.Feriados.Holiday{
 #     date: "2021-04-21",
-#     name: "Tiradentes", 
+#     name: "Tiradentes",
 #     type: "national",
 #     full_name: nil
 #   },
