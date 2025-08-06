@@ -21,7 +21,7 @@ Brasil API lookup library for Elixir with an easy-to-use API for brazilian data 
 - [ ] **NCM**
 - [ ] **PIX**
 - [ ] **Registros BR**
-- [ ] **Taxas**
+- [x] **Rates**
 
 ## Installation
 
@@ -169,6 +169,31 @@ Then run:
 {:error, %{message: "Year must be a valid positive integer"}} = Brasilapi.get_holidays("invalid")
 ```
 
+### Rates (Tax Rates and Official Indices)
+
+```elixir
+# Get all available tax rates and indices
+{:ok, rates} = Brasilapi.get_all_rates()
+# rates =>
+# [
+#   %Brasilapi.Rates.Rate{nome: "CDI", valor: 13.65},
+#   %Brasilapi.Rates.Rate{nome: "SELIC", valor: 13.75},
+#   %Brasilapi.Rates.Rate{nome: "IPCA", valor: 4.62},
+#   # ... more rates and indices
+# ]
+
+# Get a specific tax rate by its name/acronym
+{:ok, rate} = Brasilapi.get_rate_by_acronym("CDI")
+# rate => %Brasilapi.Rates.Rate{nome: "CDI", valor: 13.65}
+
+{:ok, rate} = Brasilapi.get_rate_by_acronym("SELIC")
+# rate => %Brasilapi.Rates.Rate{nome: "SELIC", valor: 13.75}
+
+# Error handling
+{:error, %{status: 404, message: "Not found"}} = Brasilapi.get_rate_by_acronym("INVALID_RATE")
+{:error, %{message: "Acronym must be a string"}} = Brasilapi.get_rate_by_acronym(123)
+```
+
 ## Response Types with Structs
 
 For better type safety and developer experience, BrasilAPI provides struct definitions for all response types. You can use these structs to work with typed data instead of raw maps:
@@ -194,6 +219,10 @@ For better type safety and developer experience, BrasilAPI provides struct defin
 {:ok, holidays} = Brasilapi.get_holidays(2021)
 [%Brasilapi.Feriados.Holiday{} = holiday | _] = holidays
 # holiday => %Brasilapi.Feriados.Holiday{date: "2021-01-01", name: "Confraternização mundial", type: "national", full_name: nil}
+
+# Tax rate struct
+{:ok, %Brasilapi.Rates.Rate{} = rate} = Brasilapi.get_rate_by_acronym("CDI")
+# rate => %Brasilapi.Rates.Rate{nome: "CDI", valor: 13.65}
 ```
 
 ### Available Structs
@@ -203,6 +232,7 @@ For better type safety and developer experience, BrasilAPI provides struct defin
 - `Brasilapi.Cnpj.Company` - Company information with comprehensive business data
 - `Brasilapi.Ddd.Info` - DDD/Area code information with state and cities
 - `Brasilapi.Feriados.Holiday` - National holiday information with date, name, and type
+- `Brasilapi.Rates.Rate` - Tax rates and official indices with name and value
 
 ## Configuration
 
@@ -223,6 +253,29 @@ config :brasilapi,
 - `timeout` - Request timeout in milliseconds (default: 30,000)
 - `retry_attempts` - Number of retry attempts for failed requests (default: 3)
 - `req_options` - Additional options passed to the Req HTTP client (default: [])
+
+## Roadmap to v1.0.0
+
+I am working towards a stable 1.0.0 release with improved consistency and comprehensive API coverage. Here's what's planned:
+
+### 🔧 API Consistency & Naming
+
+- **Standardize English naming patterns**: All module names, function names, and public APIs will use consistent English naming while preserving Portuguese field names from the original BrasilAPI responses in documentation for reference
+- **Normalize function naming**: Migrate from `get_all_{resource}()` pattern to `get_{resources}()` pattern for better consistency:
+  - `get_all_banks()` → `get_banks()`
+  - `get_all_rates()` → `get_rates()`
+  - Similar patterns across all resource types
+
+### 🚀 Complete API Coverage
+
+Implement all remaining BrasilAPI endpoints to provide comprehensive access to Brazilian data:
+
+### 📚 Enhanced Documentation
+
+- Complete API documentation with Portuguese field references
+- Comprehensive examples for all endpoints
+
+Contributions welcome!
 
 ## Contributing
 

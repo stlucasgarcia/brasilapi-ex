@@ -25,9 +25,15 @@ defmodule Brasilapi do
       # Get national holidays
       {:ok, holidays} = Brasilapi.get_holidays(2021)
 
+      # Get all tax rates
+      {:ok, rates} = Brasilapi.get_all_rates()
+
+      # Get a specific tax rate
+      {:ok, rate} = Brasilapi.get_rate_by_acronym("CDI")
+
   """
 
-  alias Brasilapi.{Banks, Cep, Cnpj, Ddd, Feriados}
+  alias Brasilapi.{Banks, Cep, Cnpj, Ddd, Feriados, Rates}
 
   @doc """
   Get all banks from BrasilAPI.
@@ -58,4 +64,14 @@ defmodule Brasilapi do
   Get national holidays for a specific year.
   """
   defdelegate get_holidays(year), to: Feriados, as: :get_by_year
+
+  @doc """
+  Get all available tax rates and indices.
+  """
+  defdelegate get_all_rates(), to: Rates, as: :get_all
+
+  @doc """
+  Get a specific tax rate or index by its name/acronym.
+  """
+  defdelegate get_rate_by_acronym(acronym), to: Rates, as: :get_by_acronym
 end
