@@ -1,7 +1,7 @@
 defmodule Brasilapi.Client do
   @moduledoc """
   HTTP client for BrasilAPI endpoints.
-  
+
   Provides a consistent interface for making HTTP requests to BrasilAPI
   with proper error handling, retries, and response parsing.
   """
@@ -14,20 +14,20 @@ defmodule Brasilapi.Client do
 
   @doc """
   Makes a GET request to the specified path.
-  
+
   ## Parameters
-  
+
     * `path` - The API path (without base URL)
     * `opts` - Additional options (optional)
-  
+
   ## Examples
-  
+
       iex> Brasilapi.Client.get("/banks/v1")
       {:ok, [%{"ispb" => "00000000", "name" => "BCO DO BRASIL S.A.", ...}]}
       
       iex> Brasilapi.Client.get("/banks/v1/999999")
       {:error, %{status: 404, message: "Not found"}}
-  
+
   """
   @spec get(String.t(), keyword()) :: response()
   def get(path, opts \\ []) do
@@ -45,13 +45,13 @@ defmodule Brasilapi.Client do
 
   @doc """
   Makes a POST request to the specified path.
-  
+
   ## Parameters
-  
+
     * `path` - The API path (without base URL)
     * `body` - The request body
     * `opts` - Additional options (optional)
-  
+
   """
   @spec post(String.t(), term(), keyword()) :: response()
   def post(path, body, opts \\ []) do
@@ -69,13 +69,13 @@ defmodule Brasilapi.Client do
 
   @doc """
   Makes a PUT request to the specified path.
-  
+
   ## Parameters
-  
+
     * `path` - The API path (without base URL)
     * `body` - The request body
     * `opts` - Additional options (optional)
-  
+
   """
   @spec put(String.t(), term(), keyword()) :: response()
   def put(path, body, opts \\ []) do
@@ -93,12 +93,12 @@ defmodule Brasilapi.Client do
 
   @doc """
   Makes a DELETE request to the specified path.
-  
+
   ## Parameters
-  
+
     * `path` - The API path (without base URL)
     * `opts` - Additional options (optional)
-  
+
   """
   @spec delete(String.t(), keyword()) :: response()
   def delete(path, opts \\ []) do
@@ -125,20 +125,21 @@ defmodule Brasilapi.Client do
   @spec build_req_options(keyword()) :: keyword()
   defp build_req_options(opts) do
     retry_attempts = Config.retry_attempts()
-    
+
     default_opts = [
       receive_timeout: Config.timeout()
     ]
-    
+
     # Only add retry options if retries are enabled
-    default_opts = if retry_attempts > 0 do
-      default_opts ++ [retry: :transient, max_retries: retry_attempts]
-    else
-      default_opts ++ [retry: false, max_retries: 0]
-    end
+    default_opts =
+      if retry_attempts > 0 do
+        default_opts ++ [retry: :transient, max_retries: retry_attempts]
+      else
+        default_opts ++ [retry: false, max_retries: 0]
+      end
 
     config_opts = Config.req_options()
-    
+
     default_opts
     |> Keyword.merge(config_opts)
     |> Keyword.merge(opts)

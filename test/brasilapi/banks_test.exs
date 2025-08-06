@@ -7,7 +7,7 @@ defmodule Brasilapi.BanksTest do
   setup do
     # Store original base_url to restore later
     original_base_url = Application.get_env(:brasilapi, :base_url)
-    
+
     bypass = Bypass.open()
     base_url = "http://localhost:#{bypass.port}/api"
 

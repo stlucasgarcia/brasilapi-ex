@@ -8,7 +8,7 @@ Brasil API lookup library for Elixir with an easy-to-use API for brazilian data.
 ## Features
  - [x] **Bancos**
  - [ ] **Câmbio**
- - [ ] **CEP V2**
+ - [x] **CEP V2**
  - [ ] **CNPJ**
  - [ ] **Corretoras**
  - [ ] **CPTEC**
@@ -40,97 +40,45 @@ Then run:
 
 ## Usage
 
+### Banks (Bancos)
+
 ```elixir
-# get all banks
-{:ok, banks} = Brasilapi.Bank.all()
+# Get all banks
+{:ok, banks} = Brasilapi.get_all_banks()
 # banks =>
-# [%Brasilapi.Bank{ispb: "00000000", name: "BCO DO BRASIL S.A.", code: 1, full_name: "Banco do Brasil S.A."},
-#  %Brasilapi.Bank{ispb: "00000208", name: "BRB - BCO DE BRASILIA S.A.", code: 70, full_name: "BRB - BANCO DE BRASILIA S.A."},
+# [%Brasilapi.Banks.Bank{ispb: "00000000", name: "BCO DO BRASIL S.A.", code: 1, full_name: "Banco do Brasil S.A."},
+#  %Brasilapi.Banks.Bank{ispb: "00000208", name: "BCO ORIGINAL S.A.", code: 212, full_name: "Banco Original S.A."},
 #  ...]
 
-# find bank by code
-{:ok, bank} = Brasilapi.Bank.find_by_code(77)
-# bank => %Brasilapi.Bank{ispb: "00416968", name: "BANCO INTER", code: 77, full_name: "Banco Inter S.A."}
+# Find bank by code
+{:ok, bank} = Brasilapi.get_bank_by_code(1)
+# bank => %Brasilapi.Banks.Bank{ispb: "00000000", name: "BCO DO BRASIL S.A.", code: 1, full_name: "Banco do Brasil S.A."}
+```
 
-# find company by cnpj
-{:ok, company} = Brasilapi.Company.find_by_cnpj("60316817000103")
-# company =>
-# %Brasilapi.Company{uf: "SP",
-#   cep: "04543907",
-#   qsa: [%Brasilapi.QSA{pais: "ESTADOS UNIDOS", ...}]}
+### CEP V2 (Postal Codes)
 
-# find address by zip code
-{:ok, address} = Brasilapi.Address.find_by_zip_code("64001100")
-# address => %Brasilapi.Address{cep: "64001100", state: "PI", city: "Teresina", neighborhood: "Centro", street: "Praça Pedro II", service: "correios"}
+```elixir
+# Find address by CEP (postal code) - supports multiple providers with fallback
+{:ok, cep_data} = Brasilapi.get_cep("89010025")
+# cep_data =>
+# %Brasilapi.Cep.CepData{
+#   cep: "89010025",
+#   state: "SC",
+#   city: "Blumenau",
+#   neighborhood: "Centro",
+#   street: "Rua Doutor Luiz de Freitas Melro",
+#   service: "viacep",
+#   location: %{type: "Point", coordinates: %{}}
+# }
 
-# find address with location by zip code
-{:ok, address} = Brasilapi.Address.find_by_zip_code("80060000", location: true)
-# address =>
-# %Brasilapi.Address{cep: "80060000",
-#   state: "PR",
-#   location: %Brasilapi.Location{type: "Point", coordinates: %Brasilapi.Coordinates{longitude: "-49.2614791", latitude: "-25.427253"}}}
+# CEP can be provided as string or integer, with or without formatting
+{:ok, cep_data} = Brasilapi.get_cep("89010-025")  # formatted
+{:ok, cep_data} = Brasilapi.get_cep(89010025)     # integer
+{:ok, cep_data} = Brasilapi.get_cep("89010025")   # string
 
-# get state and cities by area code
-{:ok, area_code_data} = Brasilapi.Address.state_and_cities_by_area_code("89")
-# area_code_data =>
-# %Brasilapi.AreaCode{state: "PI",
-#   cities: ["MASSÂPE DO PIAUÍ", ..., "ACAUÃ"]}
-
-# get all CVM brokers
-{:ok, brokers} = Brasilapi.CVM.all()
-# brokers =>
-# [%Brasilapi.CVM.Broker{cnpj: "76621457000185",
-#    type: "CORRETORAS", ...}]
-
-# find CVM broker by CNPJ
-{:ok, broker} = Brasilapi.CVM.find_by_cnpj("74014747000135")
-# broker =>
-# %Brasilapi.CVM.Broker{cnpj: "74014747000135",
-#   type: "CORRETORAS", ...}
-
-# get brazilian national holidays by year
-{:ok, holidays} = Brasilapi.Holiday.by_year(2024)
-# holidays =>
-# [%Brasilapi.Holiday{date: ~D[2024-01-01], name: "Confraternização mundial", type: "national"},
-#  ...
-#  %Brasilapi.Holiday{date: ~D[2024-12-25], name: "Natal", type: "national"}]
-
-# get states from ibge
-{:ok, states} = Brasilapi.IBGE.states()
-# states =>
-# [%Brasilapi.IBGE.State{id: 11,
-#    sigla: "RO",
-#    nome: "Rondônia",
-#    regiao: %Brasilapi.IBGE.Region{id: 1, sigla: "N", nome: "Norte"}},
-#    ...
-#   %Brasilapi.IBGE.State{id: 53,
-#    sigla: "DF",
-#    nome: "Distrito Federal",
-#    regiao: %Brasilapi.IBGE.Region{id: 5, sigla: "CO", nome: "Centro-Oeste"}}]
-
-# find state by abbreviation from ibge
-{:ok, state} = Brasilapi.IBGE.find_state_by_code("PI")
-# state =>
-# %Brasilapi.IBGE.State{id: 22,
-#   sigla: "PI",
-#   nome: "Piauí",
-#   regiao: %Brasilapi.IBGE.Region{id: 2, sigla: "NE", nome: "Nordeste"}}
-
-# find state by code from ibge
-{:ok, state} = Brasilapi.IBGE.find_state_by_code(53)
-# state =>
-# %Brasilapi.IBGE.State{id: 53,
-#   sigla: "DF",
-#   nome: "Distrito Federal",
-#   regiao: %Brasilapi.IBGE.Region{id: 5, sigla: "CO", nome: "Centro-Oeste"}}
-
-# get cities by state abbreviation from ibge
-{:ok, cities} = Brasilapi.IBGE.cities_by_state("CE")
-# cities =>
-# [%Brasilapi.IBGE.City{nome: "ABAIARA", codigo_ibge: "2300101"},
-#  ...
-#  %Brasilapi.IBGE.City{nome: "VÁRZEA ALEGRE", codigo_ibge: "2314003"},
-#  %Brasilapi.IBGE.City{nome: "VIÇOSA DO CEARÁ", codigo_ibge: "2314102"}]
+# Error handling
+{:error, %{status: 404, message: "Not found"}} = Brasilapi.get_cep("00000000")
+{:error, %{message: "CEP must be exactly 8 digits"}} = Brasilapi.get_cep("123")
 ```
 
 ## Response Types with Structs
@@ -139,44 +87,38 @@ For better type safety and developer experience, BrasilAPI provides struct defin
 
 ```elixir
 # Bank struct
-{:ok, %Brasilapi.Bank{} = bank} = Brasilapi.Bank.find_by_code(77)
-# bank => %Brasilapi.Bank{ispb: "00416968", name: "BANCO INTER", code: 77, full_name: "Banco Inter S.A."}
+{:ok, %Brasilapi.Banks.Bank{} = bank} = Brasilapi.get_bank_by_code(1)
+# bank => %Brasilapi.Banks.Bank{ispb: "00000000", name: "BCO DO BRASIL S.A.", code: 1, full_name: "Banco do Brasil S.A."}
 
-# Address struct
-{:ok, %Brasilapi.Address{} = address} = Brasilapi.Address.find_by_zip_code("64001100")
-# address => %Brasilapi.Address{cep: "64001100", state: "PI", city: "Teresina", neighborhood: "Centro", street: "Praça Pedro II", service: "correios"}
-
-# Company struct
-{:ok, %Brasilapi.Company{} = company} = Brasilapi.Company.find_by_cnpj("60316817000103")
-# company => %Brasilapi.Company{uf: "SP", cep: "04543907", qsa: [%Brasilapi.QSA{pais: "ESTADOS UNIDOS", ...}]}
-
-# Holiday struct
-{:ok, holidays} = Brasilapi.Holiday.by_year(2024)
-# holidays => [%Brasilapi.Holiday{date: ~D[2024-01-01], name: "Confraternização mundial", type: "national"}, ...]
-
-# IBGE State struct
-{:ok, %Brasilapi.IBGE.State{} = state} = Brasilapi.IBGE.find_state_by_code("PI")
-# state => %Brasilapi.IBGE.State{id: 22, sigla: "PI", nome: "Piauí", regiao: %Brasilapi.IBGE.Region{...}}
-
-# IBGE City struct
-{:ok, cities} = Brasilapi.IBGE.cities_by_state("CE")
-# cities => [%Brasilapi.IBGE.City{nome: "ABAIARA", codigo_ibge: "2300101"}, ...]
+# CEP struct
+{:ok, %Brasilapi.Cep.CepData{} = cep_data} = Brasilapi.get_cep("89010025")
+# cep_data => %Brasilapi.Cep.CepData{cep: "89010025", state: "SC", city: "Blumenau", neighborhood: "Centro", street: "Rua Doutor Luiz de Freitas Melro", service: "viacep", location: %{type: "Point", coordinates: %{}}}
 ```
 
 ### Available Structs
 
-- `Brasilapi.Bank` - Bank information
-- `Brasilapi.Address` - Address/CEP information
-- `Brasilapi.Location` - Location data with coordinates
-- `Brasilapi.Coordinates` - Longitude and latitude coordinates
-- `Brasilapi.AreaCode` - Area code data with state and cities
-- `Brasilapi.Company` - Company/CNPJ information
-- `Brasilapi.QSA` - Company partners information
-- `Brasilapi.CVM.Broker` - CVM broker information
-- `Brasilapi.Holiday` - National holiday information
-- `Brasilapi.IBGE.State` - IBGE state information
-- `Brasilapi.IBGE.Region` - IBGE region information
-- `Brasilapi.IBGE.City` - IBGE city information
+- `Brasilapi.Banks.Bank` - Bank information
+- `Brasilapi.Cep.CepData` - CEP/Address information with location data
+
+## Configuration
+
+You can configure the BrasilAPI client with custom settings:
+
+```elixir
+# In your config/config.exs
+config :brasilapi,
+  base_url: "https://brasilapi.com.br/api",
+  timeout: 30_000,
+  retry_attempts: 3,
+  req_options: []
+```
+
+### Configuration Options
+
+- `base_url` - Base URL for BrasilAPI (default: "https://brasilapi.com.br/api")
+- `timeout` - Request timeout in milliseconds (default: 30,000)
+- `retry_attempts` - Number of retry attempts for failed requests (default: 3)
+- `req_options` - Additional options passed to the Req HTTP client (default: [])
 
 ## Contributing
 

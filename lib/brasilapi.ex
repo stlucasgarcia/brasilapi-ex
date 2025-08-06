@@ -13,9 +13,12 @@ defmodule Brasilapi do
       # Get a specific bank by code
       {:ok, bank} = Brasilapi.get_bank_by_code(1)
 
+      # Get CEP information
+      {:ok, cep_data} = Brasilapi.get_cep("89010025")
+
   """
 
-  alias Brasilapi.Banks
+  alias Brasilapi.{Banks, Cep}
 
   @doc """
   Get all banks from BrasilAPI.
@@ -26,4 +29,9 @@ defmodule Brasilapi do
   Get a specific bank by its code.
   """
   defdelegate get_bank_by_code(code), to: Banks, as: :get_by_code
+
+  @doc """
+  Get CEP (postal code) information using the v2 endpoint.
+  """
+  defdelegate get_cep(cep), to: Cep, as: :get_by_cep
 end

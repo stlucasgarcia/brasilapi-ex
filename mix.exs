@@ -22,7 +22,7 @@ defmodule Brasilapi.MixProject do
       maintainers: ["Lucas Garcia"],
       licenses: ["MIT"],
       links: %{
-        "GitHub" => "https://www.github.com/stlucasgarcia/brasilapi-ex",
+        "GitHub" => "https://www.github.com/stlucasgarcia/brasilapi-ex"
       }
     ]
   end
@@ -47,7 +47,7 @@ defmodule Brasilapi.MixProject do
       {:jason, "~> 1.4"},
       {:ex_doc, "~> 0.34", only: :dev, runtime: false, warn_if_outdated: true},
       {:bypass, "~> 2.1", only: :test},
-      {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
+      {:credo, "~> 1.7", only: [:dev, :test], runtime: false}
     ]
   end
 end

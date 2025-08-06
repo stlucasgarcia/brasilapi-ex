@@ -6,7 +6,7 @@ defmodule Brasilapi.ClientTest do
   setup do
     # Store original base_url to restore later
     original_base_url = Application.get_env(:brasilapi, :base_url)
-    
+
     bypass = Bypass.open()
     base_url = "http://localhost:#{bypass.port}/api"
 
@@ -88,8 +88,8 @@ defmodule Brasilapi.ClientTest do
         |> Plug.Conn.resp(400, Jason.encode!(%{"error" => "Bad request"}))
       end)
 
-      assert {:error, %{status: 400, message: "Bad request"}} = 
-        Client.post("/bad-request", %{})
+      assert {:error, %{status: 400, message: "Bad request"}} =
+               Client.post("/bad-request", %{})
     end
   end
 

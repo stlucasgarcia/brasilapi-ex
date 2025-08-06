@@ -6,7 +6,7 @@ defmodule Brasilapi.Banks.APITest do
   setup do
     # Store original base_url to restore later
     original_base_url = Application.get_env(:brasilapi, :base_url)
-    
+
     bypass = Bypass.open()
     base_url = "http://localhost:#{bypass.port}/api"
 
@@ -169,7 +169,7 @@ defmodule Brasilapi.Banks.APITest do
         |> Plug.Conn.resp(404, Jason.encode!(%{"error" => "Bank not found"}))
       end)
 
-      assert {:error, %{status: 404, message: "Not found"}} = API.get_by_code(999999)
+      assert {:error, %{status: 404, message: "Not found"}} = API.get_by_code(999_999)
     end
 
     test "returns error on non-200 response", %{bypass: bypass} do
