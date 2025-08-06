@@ -19,9 +19,12 @@ defmodule Brasilapi do
       # Get CNPJ information
       {:ok, company} = Brasilapi.get_cnpj("19131243000197")
 
+      # Get DDD information
+      {:ok, ddd_info} = Brasilapi.get_ddd(11)
+
   """
 
-  alias Brasilapi.{Banks, Cep, Cnpj}
+  alias Brasilapi.{Banks, Cep, Cnpj, Ddd}
 
   @doc """
   Get all banks from BrasilAPI.
@@ -42,4 +45,9 @@ defmodule Brasilapi do
   Get company information by CNPJ.
   """
   defdelegate get_cnpj(cnpj), to: Cnpj, as: :get_by_cnpj
+
+  @doc """
+  Get DDD (area code) information including state and cities.
+  """
+  defdelegate get_ddd(ddd), to: Ddd, as: :get_by_ddd
 end

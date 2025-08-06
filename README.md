@@ -3,7 +3,7 @@
 
 </div>
 
-Brasil API lookup library for Elixir with an easy-to-use API for brazilian data including banks, postal codes (CEP), and company information (CNPJ).
+Brasil API lookup library for Elixir with an easy-to-use API for brazilian data including banks, postal codes (CEP), company information (CNPJ), and area codes (DDD).
 
 ## Features
  - [x] **Bancos**
@@ -12,7 +12,7 @@ Brasil API lookup library for Elixir with an easy-to-use API for brazilian data 
  - [x] **CNPJ**
  - [ ] **Corretoras**
  - [ ] **CPTEC**
- - [ ] **DDD**
+ - [x] **DDD**
  - [ ] **Feriados Nacionais**
  - [ ] **FIPE**
  - [ ] **IBGE**
@@ -111,6 +111,32 @@ Then run:
 {:error, %{message: "Invalid CNPJ format. Must be 14 digits."}} = Brasilapi.get_cnpj("123")
 ```
 
+### DDD (Area Codes)
+
+```elixir
+# Get DDD information (area codes) - includes state and list of cities
+{:ok, ddd_info} = Brasilapi.get_ddd(11)
+# ddd_info =>
+# %Brasilapi.Ddd.Info{
+#   state: "SP",
+#   cities: [
+#     "EMBU",
+#     "VÁRZEA PAULISTA",
+#     "VARGEM GRANDE PAULISTA", 
+#     "SÃO PAULO",
+#     # ... more cities
+#   ]
+# }
+
+# DDD can be provided as string or integer
+{:ok, ddd_info} = Brasilapi.get_ddd("11")  # string
+{:ok, ddd_info} = Brasilapi.get_ddd(11)    # integer
+
+# Error handling
+{:error, %{status: 404, message: "DDD não encontrado"}} = Brasilapi.get_ddd(99)
+{:error, %{message: "DDD must be exactly 2 digits"}} = Brasilapi.get_ddd("123")
+```
+
 ## Response Types with Structs
 
 For better type safety and developer experience, BrasilAPI provides struct definitions for all response types. You can use these structs to work with typed data instead of raw maps:
@@ -127,6 +153,10 @@ For better type safety and developer experience, BrasilAPI provides struct defin
 # Company struct
 {:ok, %Brasilapi.Cnpj.Company{} = company} = Brasilapi.get_cnpj("11000000000197")
 # company => %Brasilapi.Cnpj.Company{cnpj: "11000000000197", razao_social: "ACME INC", nome_fantasia: "ACME CORPORATION", uf: "SP", municipio: "SAO PAULO", situacao_cadastral: 2, descricao_situacao_cadastral: "ATIVA", ...}
+
+# DDD info struct
+{:ok, %Brasilapi.Ddd.Info{} = ddd_info} = Brasilapi.get_ddd(11)
+# ddd_info => %Brasilapi.Ddd.Info{state: "SP", cities: ["EMBU", "VÁRZEA PAULISTA", "SÃO PAULO", ...]}
 ```
 
 ### Available Structs
@@ -134,6 +164,7 @@ For better type safety and developer experience, BrasilAPI provides struct defin
 - `Brasilapi.Banks.Bank` - Bank information
 - `Brasilapi.Cep.Address` - CEP/Address information with location data
 - `Brasilapi.Cnpj.Company` - Company information with comprehensive business data
+- `Brasilapi.Ddd.Info` - DDD/Area code information with state and cities
 
 ## Configuration
 
