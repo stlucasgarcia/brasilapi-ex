@@ -50,9 +50,8 @@ defmodule Brasilapi.Banks.API do
   """
   @spec get_by_code(integer() | String.t()) :: {:ok, Bank.t()} | {:error, map()}
   def get_by_code(code) when is_binary(code) or is_integer(code) do
-    with {:ok, %{} = bank} <- Client.get("/banks/v1/#{code}") do
-      {:ok, Bank.from_map(bank)}
-    end
+    with {:ok, %{} = bank} <- Client.get("/banks/v1/#{code}"),
+         do: {:ok, Bank.from_map(bank)}
   end
 
   def get_by_code(_code) do
