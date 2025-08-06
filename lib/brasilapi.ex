@@ -22,9 +22,12 @@ defmodule Brasilapi do
       # Get DDD information
       {:ok, ddd_info} = Brasilapi.get_ddd(11)
 
+      # Get national holidays
+      {:ok, holidays} = Brasilapi.get_holidays(2021)
+
   """
 
-  alias Brasilapi.{Banks, Cep, Cnpj, Ddd}
+  alias Brasilapi.{Banks, Cep, Cnpj, Ddd, Feriados}
 
   @doc """
   Get all banks from BrasilAPI.
@@ -50,4 +53,9 @@ defmodule Brasilapi do
   Get DDD (area code) information including state and cities.
   """
   defdelegate get_ddd(ddd), to: Ddd, as: :get_by_ddd
+
+  @doc """
+  Get national holidays for a specific year.
+  """
+  defdelegate get_holidays(year), to: Feriados, as: :get_by_year
 end

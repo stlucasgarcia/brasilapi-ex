@@ -26,7 +26,7 @@ defmodule Brasilapi.Ddd.Info do
       ...>   "state" => "SP",
       ...>   "cities" => [
       ...>     "EMBU",
-      ...>     "VÁRZEA PAULISTA", 
+      ...>     "VÁRZEA PAULISTA",
       ...>     "VARGEM GRANDE PAULISTA",
       ...>     "SÃO PAULO"
       ...>   ]

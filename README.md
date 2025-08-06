@@ -3,7 +3,7 @@
 
 </div>
 
-Brasil API lookup library for Elixir with an easy-to-use API for brazilian data including banks, postal codes (CEP), company information (CNPJ), and area codes (DDD).
+Brasil API lookup library for Elixir with an easy-to-use API for brazilian data including banks, postal codes (CEP), company information (CNPJ), area codes (DDD), and national holidays.
 
 ## Features
  - [x] **Bancos**
@@ -13,7 +13,7 @@ Brasil API lookup library for Elixir with an easy-to-use API for brazilian data 
  - [ ] **Corretoras**
  - [ ] **CPTEC**
  - [x] **DDD**
- - [ ] **Feriados Nacionais**
+ - [x] **Feriados Nacionais**
  - [ ] **FIPE**
  - [ ] **IBGE**
  - [ ] **ISBN**
@@ -137,6 +137,37 @@ Then run:
 {:error, %{message: "DDD must be exactly 2 digits"}} = Brasilapi.get_ddd("123")
 ```
 
+### Feriados Nacionais (National Holidays)
+
+```elixir
+# Get national holidays for a specific year
+{:ok, holidays} = Brasilapi.get_holidays(2021)
+# holidays =>
+# [
+#   %Brasilapi.Feriados.Holiday{
+#     date: "2021-01-01",
+#     name: "Confraternização mundial",
+#     type: "national",
+#     full_name: nil
+#   },
+#   %Brasilapi.Feriados.Holiday{
+#     date: "2021-04-21",
+#     name: "Tiradentes", 
+#     type: "national",
+#     full_name: nil
+#   },
+#   # ... more holidays
+# ]
+
+# Year can be provided as string or integer
+{:ok, holidays} = Brasilapi.get_holidays("2021")  # string
+{:ok, holidays} = Brasilapi.get_holidays(2021)    # integer
+
+# Error handling
+{:error, %{status: 404, message: "Ano fora do intervalo suportado."}} = Brasilapi.get_holidays(1900)
+{:error, %{message: "Year must be a valid positive integer"}} = Brasilapi.get_holidays("invalid")
+```
+
 ## Response Types with Structs
 
 For better type safety and developer experience, BrasilAPI provides struct definitions for all response types. You can use these structs to work with typed data instead of raw maps:
@@ -157,6 +188,11 @@ For better type safety and developer experience, BrasilAPI provides struct defin
 # DDD info struct
 {:ok, %Brasilapi.Ddd.Info{} = ddd_info} = Brasilapi.get_ddd(11)
 # ddd_info => %Brasilapi.Ddd.Info{state: "SP", cities: ["EMBU", "VÁRZEA PAULISTA", "SÃO PAULO", ...]}
+
+# Holiday struct
+{:ok, holidays} = Brasilapi.get_holidays(2021)
+[%Brasilapi.Feriados.Holiday{} = holiday | _] = holidays
+# holiday => %Brasilapi.Feriados.Holiday{date: "2021-01-01", name: "Confraternização mundial", type: "national", full_name: nil}
 ```
 
 ### Available Structs
@@ -165,6 +201,7 @@ For better type safety and developer experience, BrasilAPI provides struct defin
 - `Brasilapi.Cep.Address` - CEP/Address information with location data
 - `Brasilapi.Cnpj.Company` - Company information with comprehensive business data
 - `Brasilapi.Ddd.Info` - DDD/Area code information with state and cities
+- `Brasilapi.Feriados.Holiday` - National holiday information with date, name, and type
 
 ## Configuration
 
