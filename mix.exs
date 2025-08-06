@@ -29,7 +29,7 @@ defmodule Brasilapi.MixProject do
 
   defp description do
     """
-    A simple Elixir client for BrasilAPI, a public API that provides access to various Brazilian data such as postal codes, states, cities, and more.
+    A simple Elixir client for BrasilAPI, a public API that provides access to various Brazilian data such as postal codes, banks, states, cities, and more.
     """
   end
 
