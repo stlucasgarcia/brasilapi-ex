@@ -77,7 +77,7 @@ defmodule Brasilapi.Isbn.API do
         param -> [providers: param]
       end
 
-    Client.get(path, params: params)
+    Client.get(path, params: query_params)
   end
 
   @spec validate_providers(list()) :: {:ok, String.t()} | {:error, map()}
