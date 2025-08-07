@@ -17,7 +17,7 @@ Brasil API lookup library for Elixir with an easy-to-use API for brazilian data 
 - [x] **Feriados Nacionais**
 - [ ] **FIPE**
 - [ ] **IBGE**
-- [ ] **ISBN**
+- [x] **ISBN**
 - [ ] **NCM**
 - [x] **PIX**
 - [x] **Registros BR**
@@ -361,6 +361,60 @@ Then run:
 {:error, %{message: "Invalid CNPJ format. Must be 14 digits."}} = Brasilapi.get_broker_by_cnpj("123")
 ```
 
+### ISBN (International Standard Book Number)
+
+```elixir
+# Get book information by ISBN (supports both ISBN-10 and ISBN-13)
+{:ok, book} = Brasilapi.get_book("9788545702870")
+# book =>
+# %Brasilapi.Isbn.Book{
+#   isbn: "9788545702870",
+#   title: "Akira",
+#   subtitle: nil,
+#   authors: [
+#     "KATSUHIRO OTOMO",
+#     "DRIK SADA",
+#     "CASSIUS MEDAUAR",
+#     "MARCELO DEL GRECO",
+#     "DENIS TAKATA"
+#   ],
+#   publisher: "Japorama Editora e Comunicação",
+#   synopsis: "Um dos marcos da ficção científica oriental que revolucionou...",
+#   dimensions: %Brasilapi.Isbn.Dimensions{
+#     width: 17.5,
+#     height: 25.7,
+#     unit: "CENTIMETER"
+#   },
+#   year: 2017,
+#   format: "PHYSICAL",
+#   page_count: 364,
+#   subjects: ["Cartoons; caricaturas e quadrinhos", "mangá", "motocicleta", "gangue", "Delinquência"],
+#   location: "SÃO PAULO, SP",
+#   retail_price: nil,
+#   cover_url: nil,
+#   provider: "cbl"
+# }
+
+# ISBN can be provided in multiple formats
+{:ok, book} = Brasilapi.get_book("978-85-457-0287-0")  # ISBN-13 with dashes
+{:ok, book} = Brasilapi.get_book("9788545702870")      # ISBN-13 without dashes
+{:ok, book} = Brasilapi.get_book("85-457-0287-6")      # ISBN-10 with dashes  
+{:ok, book} = Brasilapi.get_book("8545702876")         # ISBN-10 without dashes
+
+# Specify providers for faster results (optional)
+{:ok, book} = Brasilapi.get_book("9788545702870", providers: ["cbl"])
+{:ok, book} = Brasilapi.get_book("9788545702870", providers: ["cbl", "google-books"])
+
+# Available providers: "cbl", "mercado-editorial", "open-library", "google-books"
+# If no providers specified, uses all providers and returns fastest response
+
+# Error handling
+{:error, %{status: 404, message: "Not found"}} = Brasilapi.get_book("1234567890123")
+{:error, %{status: 400, message: "Bad request"}} = Brasilapi.get_book("invalid-isbn")
+{:error, %{message: "Invalid ISBN format. Must be 10 or 13 digits."}} = Brasilapi.get_book("123")
+{:error, %{message: "Invalid providers: invalid. Valid providers are: cbl, mercado-editorial, open-library, google-books"}} = Brasilapi.get_book("9788545702870", providers: ["invalid"])
+```
+
 ## Response Types with Structs
 
 For better type safety and developer experience, BrasilAPI provides struct definitions for all response types. You can use these structs to work with typed data instead of raw maps:
@@ -382,6 +436,10 @@ For better type safety and developer experience, BrasilAPI provides struct defin
 # Company struct
 {:ok, %Brasilapi.Cnpj.Company{} = company} = Brasilapi.get_cnpj("11000000000197")
 # company => %Brasilapi.Cnpj.Company{cnpj: "11000000000197", razao_social: "ACME INC", nome_fantasia: "ACME CORPORATION", uf: "SP", municipio: "SAO PAULO", situacao_cadastral: 2, descricao_situacao_cadastral: "ATIVA", ...}
+
+# Book struct
+{:ok, %Brasilapi.Isbn.Book{} = book} = Brasilapi.get_book("9788545702870")
+# book => %Brasilapi.Isbn.Book{isbn: "9788545702870", title: "Akira", authors: ["KATSUHIRO OTOMO", ...], publisher: "Japorama Editora e Comunicação", year: 2017, ...}
 
 # DDD info struct
 {:ok, %Brasilapi.Ddd.Info{} = ddd_info} = Brasilapi.get_ddd(11)
@@ -423,6 +481,8 @@ For better type safety and developer experience, BrasilAPI provides struct defin
 - `Brasilapi.Cnpj.Company` - Company information with comprehensive business data
 - `Brasilapi.Ddd.Info` - DDD/Area code information with state and cities
 - `Brasilapi.Feriados.Holiday` - National holiday information with date, name, and type
+- `Brasilapi.Isbn.Book` - Book information with title, authors, publisher, synopsis, dimensions, and metadata
+- `Brasilapi.Isbn.Dimensions` - Book dimensions with width, height, and unit measurements
 - `Brasilapi.Pix.Participant` - PIX participant information with ISPB, names, and participation details
 - `Brasilapi.Rates.Rate` - Tax rates and official indices with name and value
 - `Brasilapi.RegistroBr.Domain` - Brazilian domain registration information with status, hosts, and suggestions
