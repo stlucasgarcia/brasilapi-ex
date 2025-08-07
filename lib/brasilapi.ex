@@ -46,6 +46,9 @@ defmodule Brasilapi do
       # Get all brokerage firms
       {:ok, brokers} = Brasilapi.get_brokers()
 
+      # Get specific brokerage firm by CNPJ
+      {:ok, broker} = Brasilapi.get_broker_by_cnpj("02332886000104")
+
   """
 
   alias Brasilapi.{Banks, Brokers, Cep, Cnpj, Ddd, Exchange, Feriados, Pix, Rates, RegistroBr}
@@ -114,4 +117,9 @@ defmodule Brasilapi do
   Get all active brokerage firms registered with CVM.
   """
   defdelegate get_brokers(), to: Brokers
+
+  @doc """
+  Get a specific brokerage firm by its CNPJ from CVM records.
+  """
+  defdelegate get_broker_by_cnpj(cnpj), to: Brokers
 end

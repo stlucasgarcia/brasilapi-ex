@@ -7,6 +7,7 @@ defmodule Brasilapi.Cnpj.API do
 
   alias Brasilapi.{Client}
   alias Brasilapi.Cnpj.Company
+  alias Brasilapi.Utils.Cnpj
 
   @doc """
   Fetches information about a company by its CNPJ.
@@ -25,35 +26,10 @@ defmodule Brasilapi.Cnpj.API do
 
   """
   @spec get_by_cnpj(String.t() | integer()) :: {:ok, Company.t()} | {:error, map()}
-  def get_by_cnpj(cnpj) when is_binary(cnpj) or is_integer(cnpj) do
-    with {:ok, cnpj_string} <- sanitize_and_validate_cnpj(cnpj),
+  def get_by_cnpj(cnpj) do
+    with {:ok, cnpj_string} <- Cnpj.sanitize_and_validate(cnpj),
          {:ok, %{} = company} <- Client.get("/cnpj/v1/#{cnpj_string}") do
       {:ok, Company.from_map(company)}
-    end
-  end
-
-  def get_by_cnpj(_cnpj) do
-    {:error, %{message: "CNPJ must be a string or integer"}}
-  end
-
-  # Private functions
-
-  # Sanitizes and validates CNPJ in one step
-  defp sanitize_and_validate_cnpj(cnpj) when is_integer(cnpj) do
-    cnpj
-    |> Integer.to_string()
-    |> String.pad_leading(14, "0")
-    |> sanitize_and_validate_cnpj()
-  end
-
-  defp sanitize_and_validate_cnpj(cnpj) when is_binary(cnpj) do
-    # First sanitize by removing formatting
-    sanitized = String.replace(cnpj, ~r/[^\d]/, "")
-
-    # Check if length is exactly 14 digits
-    case String.length(sanitized) do
-      14 -> {:ok, sanitized}
-      _ -> {:error, %{message: "Invalid CNPJ format. Must be 14 digits."}}
     end
   end
 end

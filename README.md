@@ -325,8 +325,40 @@ Then run:
 #  # ... more brokers
 # ]
 
+# Get specific brokerage firm by CNPJ
+{:ok, broker} = Brasilapi.get_broker_by_cnpj("02332886000104")
+# broker =>
+# %Brasilapi.Brokers.Broker{
+#   bairro: "LEBLON",
+#   cep: "22440032",
+#   cnpj: "02332886000104",
+#   codigo_cvm: "3247",
+#   complemento: "SALA 201",
+#   data_inicio_situacao: "1998-02-10",
+#   data_patrimonio_liquido: "2021-12-31",
+#   data_registro: "1997-12-05",
+#   email: "juridico.regulatorio@xpi.com.br",
+#   logradouro: "AVENIDA ATAULFO DE PAIVA 153",
+#   municipio: "RIO DE JANEIRO",
+#   nome_social: "XP INVESTIMENTOS CCTVM S.A.",
+#   nome_comercial: "XP INVESTIMENTOS",
+#   pais: "",
+#   status: "EM FUNCIONAMENTO NORMAL",
+#   telefone: "30272237",
+#   type: "CORRETORAS",
+#   uf: "RJ",
+#   valor_patrimonio_liquido: "5514593491.29"
+# }
+
+# CNPJ can be provided as string or integer, with or without formatting
+{:ok, broker} = Brasilapi.get_broker_by_cnpj("02.332.886/0001-04")  # formatted
+{:ok, broker} = Brasilapi.get_broker_by_cnpj(2332886000104)         # integer
+{:ok, broker} = Brasilapi.get_broker_by_cnpj("02332886000104")      # string
+
 # Error handling
 {:error, %{status: 500, message: "Internal server error"}} = Brasilapi.get_brokers()  # when API is down
+{:error, %{status: 404, message: "Não foi encontrado este CNPJ na listagem da CVM."}} = Brasilapi.get_broker_by_cnpj("00000000000000")
+{:error, %{message: "Invalid CNPJ format. Must be 14 digits."}} = Brasilapi.get_broker_by_cnpj("123")
 ```
 
 ## Response Types with Structs
@@ -398,9 +430,49 @@ For better type safety and developer experience, BrasilAPI provides struct defin
 - `Brasilapi.Exchange.DailyExchangeRate` - Daily exchange rate information with currency, date, and list of quotations
 - `Brasilapi.Exchange.ExchangeRate` - Individual exchange rate quotation with buy/sell rates, parity, date/time, and bulletin type
 
+## CNPJ Validation and Formatting
+
+BrasilAPI-Ex (this library) provides convenient CNPJ handling with lightweight validation and automatic formatting:
+
+### Validation Approach
+
+- **Lightweight validation**: Only checks for 14-digit length and numeric characters
+- **No checksum validation**: Does not validate actual CNPJ checksums
+- **Format flexibility**: Accepts integers, formatted strings, and plain strings
+- **Automatic formatting**: Converts all inputs to clean 14-digit strings
+
+### Supported CNPJ Formats
+
+```elixir
+# All of these are equivalent and valid:
+Brasilapi.get_cnpj("11000000000197")        # Plain string
+Brasilapi.get_cnpj("11.000.000/0001-97")    # Formatted string
+Brasilapi.get_cnpj(11000000000197)          # Integer
+Brasilapi.get_cnpj("11-000-000-0001-97")    # Custom formatting
+
+# Integers with leading zeros are automatically padded:
+Brasilapi.get_cnpj(197)  # Becomes "00000000000197"
+```
+
+### Full CNPJ Validation
+
+For complete CNPJ validation including checksum verification, consider using a dedicated library such as [brcpfcnpj](https://hex.pm/packages/brcpfcnpj):
+
+```elixir
+# Add to your dependencies for full validation
+{:brcpfcnpj, "~> 1.0"}
+
+# Use before calling BrasilAPI
+if Brcpfcnpj.cnpj_valid?("11.000.000/0001-97") do
+  {:ok, company} = Brasilapi.get_cnpj("11.000.000/0001-97")
+else
+  {:error, "Invalid CNPJ checksum"}
+end
+```
+
 ## Configuration
 
-You can configure the BrasilAPI client with custom settings:
+You can configure the BrasilAPI client with custom settings (you usually don't need to change these):
 
 ```elixir
 # In your config/config.exs

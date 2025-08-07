@@ -14,4 +14,11 @@ defmodule Brasilapi.Brokers do
   Delegates to `Brasilapi.Brokers.API.get_brokers/0`.
   """
   defdelegate get_brokers(), to: API
+
+  @doc """
+  Gets a specific brokerage firm by its CNPJ from CVM records.
+
+  Delegates to `Brasilapi.Brokers.API.get_broker_by_cnpj/1`.
+  """
+  defdelegate get_broker_by_cnpj(cnpj), to: API
 end
