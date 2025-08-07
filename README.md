@@ -8,7 +8,7 @@ Brasil API lookup library for Elixir with an easy-to-use API for brazilian data 
 ## Features
 
 - [x] **Bancos**
-- [ ] **Câmbio**
+- [x] **Câmbio**
 - [x] **CEP V2**
 - [x] **CNPJ**
 - [ ] **Corretoras**
@@ -224,6 +224,51 @@ Then run:
 {:error, %{status: 500, message: "Server error"}} = Brasilapi.get_pix_participants()  # when API is down
 ```
 
+### Exchange (Currency Exchange Rates)
+
+```elixir
+# Get all available currencies
+{:ok, currencies} = Brasilapi.get_currencies()
+# currencies =>
+# [%Brasilapi.Exchange.Currency{simbolo: "USD", nome: "Dólar dos Estados Unidos", tipo_moeda: "A"},
+#  %Brasilapi.Exchange.Currency{simbolo: "EUR", nome: "Euro", tipo_moeda: "A"},
+#  ...]
+
+# Get exchange rate for a specific currency and date
+{:ok, daily_exchange_rate} = Brasilapi.get_exchange_rate("USD", "2025-02-13")
+
+# Also accepts Date/DateTime/NaiveDateTime structs
+{:ok, daily_exchange_rate} = Brasilapi.get_exchange_rate("USD", ~D[2025-02-13])
+{:ok, daily_exchange_rate} = Brasilapi.get_exchange_rate("USD", ~U[2025-02-13 14:30:00Z])
+{:ok, daily_exchange_rate} = Brasilapi.get_exchange_rate("USD", ~N[2025-02-13 14:30:00])
+
+# daily_exchange_rate =>
+# %Brasilapi.Exchange.DailyExchangeRate{
+#   moeda: "USD",
+#   data: "2025-02-13",
+#   cotacoes: [
+#     %Brasilapi.Exchange.ExchangeRate{
+#       paridade_compra: 1,
+#       paridade_venda: 1,
+#       cotacao_compra: 5.7624,
+#       cotacao_venda: 5.763,
+#       data_hora_cotacao: "2025-02-13 13:03:25.722",
+#       tipo_boletim: "INTERMEDIÁRIO"
+#     }
+#   ]
+# }
+
+# Available currencies: AUD, CAD, CHF, DKK, EUR, GBP, JPY, SEK, USD
+# Data available from November 28, 1984 onwards
+# For weekends and holidays, returns last available business day
+# Date accepts: String (YYYY-MM-DD), Date, DateTime, NaiveDateTime
+
+# Error handling
+{:error, %{status: 404, message: "Not found"}} = Brasilapi.get_exchange_rate("INVALID", "2025-02-13")
+{:error, %{message: "Invalid date format. Must be YYYY-MM-DD"}} = Brasilapi.get_exchange_rate("USD", "invalid-date")
+{:error, %{message: "Currency must be a string and date must be a valid date"}} = Brasilapi.get_exchange_rate(123, "2025-02-13")
+```
+
 ### RegistroBR (Brazilian Domain Registration)
 
 ```elixir
@@ -288,6 +333,15 @@ For better type safety and developer experience, BrasilAPI provides struct defin
 # RegistroBR domain struct
 {:ok, %Brasilapi.RegistroBr.Domain{} = domain} = Brasilapi.get_domain_info("brasilapi.com.br")
 # domain => %Brasilapi.RegistroBr.Domain{status_code: 2, status: "REGISTERED", fqdn: "brasilapi.com.br", hosts: ["bob.ns.cloudflare.com", "lily.ns.cloudflare.com"], publication_status: "published", expires_at: "2022-09-23T00:00:00-03:00", suggestions: ["agr.br", "app.br", ...]}
+
+# Exchange currency struct
+{:ok, currencies} = Brasilapi.get_currencies()
+[%Brasilapi.Exchange.Currency{} = currency | _] = currencies
+# currency => %Brasilapi.Exchange.Currency{simbolo: "USD", nome: "Dólar dos Estados Unidos", tipo_moeda: "A"}
+
+# Daily exchange rate struct
+{:ok, %Brasilapi.Exchange.DailyExchangeRate{} = daily_exchange_rate} = Brasilapi.get_exchange_rate("USD", "2025-02-13")
+# daily_exchange_rate => %Brasilapi.Exchange.DailyExchangeRate{moeda: "USD", data: "2025-02-13", cotacoes: [%Brasilapi.Exchange.ExchangeRate{paridade_compra: 1, paridade_venda: 1, cotacao_compra: 5.7624, cotacao_venda: 5.763, ...}]}
 ```
 
 ### Available Structs
@@ -300,6 +354,9 @@ For better type safety and developer experience, BrasilAPI provides struct defin
 - `Brasilapi.Pix.Participant` - PIX participant information with ISPB, names, and participation details
 - `Brasilapi.Rates.Rate` - Tax rates and official indices with name and value
 - `Brasilapi.RegistroBr.Domain` - Brazilian domain registration information with status, hosts, and suggestions
+- `Brasilapi.Exchange.Currency` - Currency information with symbol, name, and type
+- `Brasilapi.Exchange.DailyExchangeRate` - Daily exchange rate information with currency, date, and list of quotations
+- `Brasilapi.Exchange.ExchangeRate` - Individual exchange rate quotation with buy/sell rates, parity, date/time, and bulletin type
 
 ## Configuration
 

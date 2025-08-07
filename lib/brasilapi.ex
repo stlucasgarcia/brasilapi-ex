@@ -37,9 +37,15 @@ defmodule Brasilapi do
       # Get domain information
       {:ok, domain} = Brasilapi.get_domain_info("brasilapi.com.br")
 
+      # Get all currencies
+      {:ok, currencies} = Brasilapi.get_currencies()
+
+      # Get exchange rate
+      {:ok, exchange_rate} = Brasilapi.get_exchange_rate("USD", "2025-02-13")
+
   """
 
-  alias Brasilapi.{Banks, Cep, Cnpj, Ddd, Feriados, Pix, Rates, RegistroBr}
+  alias Brasilapi.{Banks, Cep, Cnpj, Ddd, Exchange, Feriados, Pix, Rates, RegistroBr}
 
   @doc """
   Get all banks from BrasilAPI.
@@ -90,4 +96,14 @@ defmodule Brasilapi do
   Get Brazilian domain (.br) registration information.
   """
   defdelegate get_domain_info(domain), to: RegistroBr, as: :get_domain_info
+
+  @doc """
+  Get all available currencies for exchange rate queries.
+  """
+  defdelegate get_currencies(), to: Exchange
+
+  @doc """
+  Get the exchange rate between Real and another currency for a specific date.
+  """
+  defdelegate get_exchange_rate(currency, date), to: Exchange
 end
