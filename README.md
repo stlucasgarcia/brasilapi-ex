@@ -398,7 +398,7 @@ Then run:
 # ISBN can be provided in multiple formats
 {:ok, book} = Brasilapi.get_book("978-85-457-0287-0")  # ISBN-13 with dashes
 {:ok, book} = Brasilapi.get_book("9788545702870")      # ISBN-13 without dashes
-{:ok, book} = Brasilapi.get_book("85-457-0287-6")      # ISBN-10 with dashes  
+{:ok, book} = Brasilapi.get_book("85-457-0287-6")      # ISBN-10 with dashes
 {:ok, book} = Brasilapi.get_book("8545702876")         # ISBN-10 without dashes
 
 # Specify providers for faster results (optional)
@@ -571,6 +571,12 @@ Implement all remaining BrasilAPI endpoints to provide comprehensive access to B
 
 - Complete API documentation with Portuguese field references
 - Comprehensive examples for all endpoints
+
+### Extras
+
+- Add validation and formatting for CNPJ and CPF using the [`brcpfcnpj`](https://hex.pm/packages/brcpfcnpj) package (if available and enabled in the configuration). Otherwise, fall back to our custom lightweight implementation.
+- Implement changelog for tracking changes and versions
+- Implement CI/CD pipeline for automated testing
 
 Contributions welcome!
 
