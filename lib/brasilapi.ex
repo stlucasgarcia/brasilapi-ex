@@ -43,9 +43,12 @@ defmodule Brasilapi do
       # Get exchange rate
       {:ok, exchange_rate} = Brasilapi.get_exchange_rate("USD", "2025-02-13")
 
+      # Get all brokerage firms
+      {:ok, brokers} = Brasilapi.get_brokers()
+
   """
 
-  alias Brasilapi.{Banks, Cep, Cnpj, Ddd, Exchange, Feriados, Pix, Rates, RegistroBr}
+  alias Brasilapi.{Banks, Brokers, Cep, Cnpj, Ddd, Exchange, Feriados, Pix, Rates, RegistroBr}
 
   @doc """
   Get all banks from BrasilAPI.
@@ -106,4 +109,9 @@ defmodule Brasilapi do
   Get the exchange rate between Real and another currency for a specific date.
   """
   defdelegate get_exchange_rate(currency, date), to: Exchange
+
+  @doc """
+  Get all active brokerage firms registered with CVM.
+  """
+  defdelegate get_brokers(), to: Brokers
 end

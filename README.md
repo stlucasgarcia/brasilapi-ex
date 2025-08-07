@@ -11,7 +11,7 @@ Brasil API lookup library for Elixir with an easy-to-use API for brazilian data 
 - [x] **Câmbio**
 - [x] **CEP V2**
 - [x] **CNPJ**
-- [ ] **Corretoras**
+- [x] **Corretoras**
 - [ ] **CPTEC**
 - [x] **DDD**
 - [x] **Feriados Nacionais**
@@ -295,6 +295,40 @@ Then run:
 {:error, %{message: "Domain must be a string"}} = Brasilapi.get_domain_info(123)
 ```
 
+### Brokers (Brokerage Firms)
+
+```elixir
+# Get all active brokerage firms registered with CVM
+{:ok, brokers} = Brasilapi.get_brokers()
+# brokers =>
+# [%Brasilapi.Brokers.Broker{
+#    cnpj: "00000000000191",
+#    nome_social: "CORRETORA EXEMPLO S.A.",
+#    nome_comercial: "CORRETORA EXEMPLO",
+#    bairro: "CENTRO",
+#    cep: "01010000",
+#    codigo_cvm: "12345",
+#    complemento: "ANDAR 10",
+#    data_inicio_situacao: "2020-01-01",
+#    data_patrimonio_liquido: "2023-12-31",
+#    data_registro: "2019-06-15",
+#    email: "contato@exemplo.com.br",
+#    logradouro: "RUA EXEMPLO, 123",
+#    municipio: "SAO PAULO",
+#    pais: "BRASIL",
+#    status: "ATIVA",
+#    telefone: "11999999999",
+#    type: "CORRETORA",
+#    uf: "SP",
+#    valor_patrimonio_liquido: "50000000.00"
+#  },
+#  # ... more brokers
+# ]
+
+# Error handling
+{:error, %{status: 500, message: "Internal server error"}} = Brasilapi.get_brokers()  # when API is down
+```
+
 ## Response Types with Structs
 
 For better type safety and developer experience, BrasilAPI provides struct definitions for all response types. You can use these structs to work with typed data instead of raw maps:
@@ -303,6 +337,11 @@ For better type safety and developer experience, BrasilAPI provides struct defin
 # Bank struct
 {:ok, %Brasilapi.Banks.Bank{} = bank} = Brasilapi.get_bank_by_code(1)
 # bank => %Brasilapi.Banks.Bank{ispb: "00000000", name: "BCO DO BRASIL S.A.", code: 1, full_name: "Banco do Brasil S.A."}
+
+# Broker struct
+{:ok, brokers} = Brasilapi.get_brokers()
+[%Brasilapi.Brokers.Broker{} = broker | _] = brokers
+# broker => %Brasilapi.Brokers.Broker{cnpj: "00000000000191", nome_social: "CORRETORA EXEMPLO S.A.", nome_comercial: "CORRETORA EXEMPLO", codigo_cvm: "12345", status: "ATIVA", ...}
 
 # Address struct
 {:ok, %Brasilapi.Cep.Address{} = address} = Brasilapi.get_cep("89010025")
@@ -347,6 +386,7 @@ For better type safety and developer experience, BrasilAPI provides struct defin
 ### Available Structs
 
 - `Brasilapi.Banks.Bank` - Bank information
+- `Brasilapi.Brokers.Broker` - CVM-registered brokerage firm information with comprehensive registration and financial data
 - `Brasilapi.Cep.Address` - CEP/Address information with location data
 - `Brasilapi.Cnpj.Company` - Company information with comprehensive business data
 - `Brasilapi.Ddd.Info` - DDD/Area code information with state and cities
