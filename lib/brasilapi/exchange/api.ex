@@ -53,10 +53,12 @@ defmodule Brasilapi.Exchange.API do
       {:error, %{status: 404, message: "Not found"}}
 
   """
-  @spec get_exchange_rate(String.t(), String.t() | Date.t() | DateTime.t() | NaiveDateTime.t()) :: {:ok, DailyExchangeRate.t()} | {:error, map()}
+  @spec get_exchange_rate(String.t(), String.t() | Date.t() | DateTime.t() | NaiveDateTime.t()) ::
+          {:ok, DailyExchangeRate.t()} | {:error, map()}
   def get_exchange_rate(currency, date) when is_binary(currency) do
     with {:ok, formatted_date} <- format_date(date),
-         {:ok, %{} = exchange_data} <- Client.get("/cambio/v1/cotacao/#{currency}/#{formatted_date}"),
+         {:ok, %{} = exchange_data} <-
+           Client.get("/cambio/v1/cotacao/#{currency}/#{formatted_date}"),
          do: {:ok, DailyExchangeRate.from_map(exchange_data)}
   end
 
@@ -64,7 +66,8 @@ defmodule Brasilapi.Exchange.API do
     {:error, %{message: "Currency must be a string and date must be a valid date"}}
   end
 
-  @spec format_date(String.t() | Date.t() | DateTime.t() | NaiveDateTime.t()) :: {:ok, String.t()} | {:error, map()}
+  @spec format_date(String.t() | Date.t() | DateTime.t() | NaiveDateTime.t()) ::
+          {:ok, String.t()} | {:error, map()}
   defp format_date(%Date{} = date) do
     {:ok, Date.to_string(date)}
   end
@@ -81,15 +84,23 @@ defmodule Brasilapi.Exchange.API do
     case String.match?(date_string, ~r/^\d{4}-\d{2}-\d{2}$/) do
       true ->
         case Date.from_iso8601(date_string) do
-          {:ok, _date} -> {:ok, date_string}
-          {:error, _} -> {:error, %{message: "Invalid date. Must be a valid date in YYYY-MM-DD format"}}
+          {:ok, _date} ->
+            {:ok, date_string}
+
+          {:error, _} ->
+            {:error, %{message: "Invalid date. Must be a valid date in YYYY-MM-DD format"}}
         end
+
       false ->
         {:error, %{message: "Invalid date format. Must be YYYY-MM-DD"}}
     end
   end
 
   defp format_date(_) do
-    {:error, %{message: "Date must be a Date, DateTime, NaiveDateTime struct or string in YYYY-MM-DD format"}}
+    {:error,
+     %{
+       message:
+         "Date must be a Date, DateTime, NaiveDateTime struct or string in YYYY-MM-DD format"
+     }}
   end
 end

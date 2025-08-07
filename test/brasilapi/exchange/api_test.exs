@@ -184,7 +184,11 @@ defmodule Brasilapi.Exchange.APITest do
 
     test "returns error for invalid date type" do
       assert {:error, %{message: message}} = API.get_exchange_rate("USD", 123)
-      assert String.contains?(message, "Date must be a Date, DateTime, NaiveDateTime struct or string")
+
+      assert String.contains?(
+               message,
+               "Date must be a Date, DateTime, NaiveDateTime struct or string"
+             )
     end
 
     test "returns error on API failure", %{bypass: bypass} do

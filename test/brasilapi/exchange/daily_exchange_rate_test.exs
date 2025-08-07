@@ -30,8 +30,9 @@ defmodule Brasilapi.Exchange.DailyExchangeRateTest do
 
       assert is_list(result.cotacoes)
       assert length(result.cotacoes) == 1
-      
+
       [exchange_rate | _] = result.cotacoes
+
       assert %ExchangeRate{
                paridade_compra: 1,
                paridade_venda: 1,
@@ -67,8 +68,9 @@ defmodule Brasilapi.Exchange.DailyExchangeRateTest do
 
       assert is_list(result.cotacoes)
       assert length(result.cotacoes) == 1
-      
+
       [exchange_rate | _] = result.cotacoes
+
       assert %ExchangeRate{
                paridade_compra: 1,
                paridade_venda: 1,
@@ -104,7 +106,7 @@ defmodule Brasilapi.Exchange.DailyExchangeRateTest do
         data_hora_cotacao: "2025-02-13 13:03:25.722",
         tipo_boletim: "INTERMEDIÁRIO"
       }
-      
+
       daily_exchange_rate = %DailyExchangeRate{
         cotacoes: [exchange_rate],
         moeda: "USD",

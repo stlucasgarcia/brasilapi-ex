@@ -23,11 +23,12 @@ defmodule Brasilapi.Exchange.DailyExchangeRate do
   """
   @spec from_map(map()) :: t()
   def from_map(map) when is_map(map) do
-    cotacoes = 
+    cotacoes =
       case Map.get(map, "cotacoes") do
-        cotacoes_list when is_list(cotacoes_list) -> 
+        cotacoes_list when is_list(cotacoes_list) ->
           Enum.map(cotacoes_list, &ExchangeRate.from_map/1)
-        _ -> 
+
+        _ ->
           []
       end
 
