@@ -37,6 +37,15 @@ defmodule Brasilapi do
       # Get national holidays
       {:ok, holidays} = Brasilapi.get_holidays(2021)
 
+      # Get all Brazilian states
+      {:ok, states} = Brasilapi.get_states()
+
+      # Get specific state information
+      {:ok, state} = Brasilapi.get_state("SP")
+
+      # Get municipalities for a state
+      {:ok, municipalities} = Brasilapi.get_municipalities("SC")
+
       # Get book information by ISBN
       {:ok, book} = Brasilapi.get_book("9788545702870")
 
@@ -71,6 +80,7 @@ defmodule Brasilapi do
     Ddd,
     Exchange,
     Holidays,
+    Ibge,
     Isbn,
     Ncm,
     Pix,
@@ -171,6 +181,37 @@ defmodule Brasilapi do
     https://brasilapi.com.br/docs#tag/Feriados-Nacionais/paths/~1feriados~1v1~1%7Bano%7D/get
   """
   defdelegate get_holidays(year), to: Holidays, as: :get_by_year
+
+  # IBGE
+
+  @doc """
+  Get all Brazilian states.
+
+  Returns information about all states including their regions.
+
+  ## API Reference
+    https://brasilapi.com.br/docs#tag/IBGE/paths/~1ibge~1uf~1v1/get
+  """
+  defdelegate get_states(), to: Ibge
+
+  @doc """
+  Get information about a specific state by code or abbreviation.
+
+  ## API Reference
+    https://brasilapi.com.br/docs#tag/IBGE/paths/~1ibge~1uf~1v1~1%7Bcode%7D/get
+  """
+  defdelegate get_state(code), to: Ibge
+
+  @doc """
+  Get municipalities for a given state.
+
+  Returns a list of municipalities for the specified state (UF).
+  Optionally accepts a list of data providers.
+
+  ## API Reference
+    https://brasilapi.com.br/docs#tag/IBGE/paths/~1ibge~1municipios~1v1~1%7BsiglaUF%7D?providers=dados-abertos-br,gov,wikipedia/get
+  """
+  defdelegate get_municipalities(uf, opts \\ []), to: Ibge
 
   # ISBN
 

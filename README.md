@@ -16,7 +16,7 @@ Brasil API lookup library for Elixir with an easy-to-use API for brazilian data 
 - [x] **DDD**
 - [x] **Feriados Nacionais**
 - [ ] **FIPE**
-- [ ] **IBGE**
+- [x] **IBGE**
 - [x] **ISBN**
 - [x] **NCM**
 - [x] **PIX**
@@ -278,6 +278,84 @@ Then run:
 # Error handling
 {:error, %{status: 404, message: "Ano fora do intervalo suportado."}} = Brasilapi.get_holidays(1900)
 {:error, %{message: "Year must be a valid positive integer"}} = Brasilapi.get_holidays("invalid")
+```
+
+### IBGE (Instituto Brasileiro de Geografia e Estatística)
+
+```elixir
+# Get all Brazilian states
+{:ok, states} = Brasilapi.get_states()
+# states =>
+# [
+#   %Brasilapi.Ibge.State{
+#     id: 35,
+#     sigla: "SP",
+#     nome: "São Paulo",
+#     regiao: %Brasilapi.Ibge.Region{
+#       id: 3,
+#       sigla: "SE",
+#       nome: "Sudeste"
+#     }
+#   },
+#   %Brasilapi.Ibge.State{
+#     id: 43,
+#     sigla: "RS",
+#     nome: "Rio Grande do Sul",
+#     regiao: %Brasilapi.Ibge.Region{
+#       id: 4,
+#       sigla: "S",
+#       nome: "Sul"
+#     }
+#   },
+#   # ... more states
+# ]
+
+# Get specific state by code (ID) or abbreviation (sigla)
+{:ok, state} = Brasilapi.get_state("SP")
+# state =>
+# %Brasilapi.Ibge.State{
+#   id: 35,
+#   sigla: "SP",
+#   nome: "São Paulo",
+#   regiao: %Brasilapi.Ibge.Region{
+#     id: 3,
+#     sigla: "SE",
+#     nome: "Sudeste"
+#   }
+# }
+
+# State code can be provided as string (sigla) or integer (ID)
+{:ok, state} = Brasilapi.get_state("SP")  # sigla (string)
+{:ok, state} = Brasilapi.get_state(35)    # ID (integer)
+
+# Get municipalities for a state
+{:ok, municipalities} = Brasilapi.get_municipalities("SC")
+# municipalities =>
+# [
+#   %Brasilapi.Ibge.Municipality{
+#     nome: "Tubarão",
+#     codigo_ibge: "421870705"
+#   },
+#   %Brasilapi.Ibge.Municipality{
+#     nome: "Tunápolis",
+#     codigo_ibge: "421875605"
+#   },
+#   # ... more municipalities
+# ]
+
+# Specify data providers (optional)
+{:ok, municipalities} = Brasilapi.get_municipalities("SP", providers: ["gov"])
+{:ok, municipalities} = Brasilapi.get_municipalities("SP", providers: ["gov", "wikipedia"])
+
+# Available providers: "dados-abertos-br", "gov", "wikipedia"
+# If no providers specified, uses all available data sources
+
+# Error handling
+{:error, %{status: 404, message: "Not found"}} = Brasilapi.get_state("XX")
+{:error, %{message: "Code must be a string or integer"}} = Brasilapi.get_state(nil)
+{:error, %{status: 404, message: "Not found"}} = Brasilapi.get_municipalities("XX")
+{:error, %{message: "UF must be a string"}} = Brasilapi.get_municipalities(123)
+{:error, %{message: "Invalid providers: invalid. Valid providers are: dados-abertos-br, gov, wikipedia"}} = Brasilapi.get_municipalities("SP", providers: ["invalid"])
 ```
 
 ### ISBN (International Standard Book Number)
@@ -543,6 +621,9 @@ For better type safety and developer experience, BrasilAPI provides struct defin
 - `Brasilapi.Cnpj.Company` - Company information with comprehensive business data
 - `Brasilapi.Ddd.Info` - DDD/Area code information with state and cities
 - `Brasilapi.Holidays.Holiday` - National holiday information with date, name, and type
+- `Brasilapi.Ibge.Region` - Brazilian region information with ID, abbreviation, and name
+- `Brasilapi.Ibge.State` - Brazilian state (UF) information with ID, abbreviation, name, and region
+- `Brasilapi.Ibge.Municipality` - Brazilian municipality information with name and IBGE code
 - `Brasilapi.Isbn.Book` - Book information with title, authors, publisher, synopsis, dimensions, and metadata
 - `Brasilapi.Isbn.Dimensions` - Book dimensions with width, height, and unit measurements
 - `Brasilapi.Ncm.Ncm` - NCM (Nomenclatura Comum do Mercosul) code information with classification, description, and legal act details
