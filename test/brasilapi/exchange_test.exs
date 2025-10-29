@@ -10,8 +10,8 @@ defmodule Brasilapi.ExchangeTest do
     BypassHelpers.setup_bypass_for_base_url()
   end
 
-  describe "get_currencies/0 delegation" do
-    test "delegates to API.get_currencies/0", %{bypass: bypass} do
+  describe "get_exchange_currencies/0 delegation" do
+    test "delegates to API.get_exchange_currencies/0", %{bypass: bypass} do
       expected_response = [
         %{
           "simbolo" => "USD",
@@ -31,7 +31,7 @@ defmodule Brasilapi.ExchangeTest do
         |> Plug.Conn.resp(200, Jason.encode!(expected_response))
       end)
 
-      assert {:ok, currencies} = Exchange.get_currencies()
+      assert {:ok, currencies} = Exchange.get_exchange_currencies()
 
       assert [
                %Currency{simbolo: "USD", nome: "Dólar dos Estados Unidos", tipo_moeda: "A"},

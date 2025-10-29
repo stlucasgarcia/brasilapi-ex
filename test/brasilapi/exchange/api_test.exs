@@ -10,7 +10,7 @@ defmodule Brasilapi.Exchange.APITest do
     BypassHelpers.setup_bypass_for_base_url()
   end
 
-  describe "get_currencies/0" do
+  describe "get_exchange_currencies/0" do
     test "returns list of currencies on success", %{bypass: bypass} do
       expected_response = [
         %{
@@ -31,7 +31,7 @@ defmodule Brasilapi.Exchange.APITest do
         |> Plug.Conn.resp(200, Jason.encode!(expected_response))
       end)
 
-      assert {:ok, currencies} = API.get_currencies()
+      assert {:ok, currencies} = API.get_exchange_currencies()
 
       assert [
                %Currency{simbolo: "USD", nome: "Dólar dos Estados Unidos", tipo_moeda: "A"},
@@ -46,13 +46,13 @@ defmodule Brasilapi.Exchange.APITest do
         |> Plug.Conn.resp(500, Jason.encode!(%{error: "Internal server error"}))
       end)
 
-      assert {:error, %{status: 500}} = API.get_currencies()
+      assert {:error, %{status: 500}} = API.get_exchange_currencies()
     end
 
     test "handles connection failure", %{bypass: bypass} do
       Bypass.down(bypass)
 
-      assert {:error, %{message: _}} = API.get_currencies()
+      assert {:error, %{message: _}} = API.get_exchange_currencies()
     end
   end
 

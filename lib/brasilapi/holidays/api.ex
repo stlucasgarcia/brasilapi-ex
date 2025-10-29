@@ -1,6 +1,6 @@
-defmodule Brasilapi.Feriados.API do
+defmodule Brasilapi.Holidays.API do
   @moduledoc """
-  Client for BrasilAPI Feriados endpoints.
+  Client for BrasilAPI Holidays endpoints.
 
   Provides functions to fetch information about Brazilian national holidays
   for a specific year. Calculates movable holidays based on Easter and
@@ -8,7 +8,7 @@ defmodule Brasilapi.Feriados.API do
   """
 
   alias Brasilapi.{Client}
-  alias Brasilapi.Feriados.Holiday
+  alias Brasilapi.Holidays.Holiday
 
   @doc """
   Fetches national holidays for a specific year.
@@ -22,9 +22,9 @@ defmodule Brasilapi.Feriados.API do
 
   ## Examples
 
-      iex> Brasilapi.Feriados.API.get_by_year(2021)
+      iex> Brasilapi.Holidays.API.get_by_year(2021)
       {:ok, [
-        %Brasilapi.Feriados.Holiday{
+        %Brasilapi.Holidays.Holiday{
           date: "2021-01-01",
           name: "Confraternização mundial",
           type: "national",
@@ -33,9 +33,11 @@ defmodule Brasilapi.Feriados.API do
         # ... more holidays
       ]}
 
-      iex> Brasilapi.Feriados.API.get_by_year(1900)
+      iex> Brasilapi.Holidays.API.get_by_year(1900)
       {:error, %{status: 404, message: "Ano fora do intervalo suportado."}}
 
+  ## API Reference
+    https://brasilapi.com.br/docs#tag/Feriados-Nacionais/paths/~1feriados~1v1~1%7Bano%7D/get
   """
   @spec get_by_year(String.t() | integer()) :: {:ok, [Holiday.t()]} | {:error, map()}
   def get_by_year(year) when is_binary(year) or is_integer(year) do

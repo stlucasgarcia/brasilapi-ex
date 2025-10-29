@@ -10,14 +10,14 @@ defmodule Brasilapi.Banks do
   @doc """
   Fetches information about all Brazilian banks.
 
-  Delegates to `Brasilapi.Banks.API.get_all/0`.
+  Delegates to `Brasilapi.Banks.API.get_banks/0`.
   """
-  defdelegate get_all(), to: API
+  defdelegate get_banks(), to: API
 
   @doc """
   Fetches information about a specific bank by its code.
 
-  Delegates to `Brasilapi.Banks.API.get_by_code/1`.
+  Delegates to `Brasilapi.Banks.API.get_bank_by_code/1`.
   """
-  defdelegate get_by_code(code), to: API
+  defdelegate get_bank_by_code(code), to: API
 end

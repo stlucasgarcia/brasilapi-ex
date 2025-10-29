@@ -14,15 +14,15 @@ defmodule Brasilapi.Exchange.API do
 
   ## Examples
 
-      iex> Brasilapi.Exchange.API.get_currencies()
+      iex> Brasilapi.Exchange.API.get_exchange_currencies()
       {:ok, [%Brasilapi.Exchange.Currency{simbolo: "USD", nome: "Dólar dos Estados Unidos", tipo_moeda: "A"}]}
 
-      iex> Brasilapi.Exchange.API.get_currencies()
+      iex> Brasilapi.Exchange.API.get_exchange_currencies()
       {:error, %{status: 500, message: "Internal server error"}}
 
   """
-  @spec get_currencies() :: {:ok, [Currency.t()]} | {:error, map()}
-  def get_currencies do
+  @spec get_exchange_currencies() :: {:ok, [Currency.t()]} | {:error, map()}
+  def get_exchange_currencies do
     with {:ok, currencies_data} when is_list(currencies_data) <- Client.get("/cambio/v1/moedas"),
          do: {:ok, Enum.map(currencies_data, &Currency.from_map/1)}
   end

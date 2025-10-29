@@ -5,7 +5,7 @@ defmodule BrasilapiTest do
   alias Brasilapi.Cep.Address
   alias Brasilapi.Cnpj.Company
   alias Brasilapi.Ddd.Info
-  alias Brasilapi.Feriados.Holiday
+  alias Brasilapi.Holidays.Holiday
   alias Brasilapi.BypassHelpers
 
   setup do

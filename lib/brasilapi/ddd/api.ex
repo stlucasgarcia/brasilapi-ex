@@ -31,6 +31,8 @@ defmodule Brasilapi.Ddd.API do
       iex> Brasilapi.Ddd.API.get_by_ddd(99)
       {:error, %{status: 404, message: "DDD não encontrado"}}
 
+  ## API Reference
+    https://brasilapi.com.br/docs#tag/DDD/paths/~1ddd~1v1~1%7Bddd%7D/get
   """
   @spec get_by_ddd(String.t() | integer()) :: {:ok, Info.t()} | {:error, map()}
   def get_by_ddd(ddd) when is_binary(ddd) or is_integer(ddd) do

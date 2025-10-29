@@ -35,6 +35,8 @@ defmodule Brasilapi.Cep.API do
       iex> Brasilapi.Cep.API.get_by_cep("00000000")
       {:error, %{status: 404, message: "Not found"}}
 
+  ## API Reference
+    https://brasilapi.com.br/docs#tag/CEP-V2/paths/~1cep~1v2~1%7Bcep%7D/get
   """
   @spec get_by_cep(String.t() | integer()) :: {:ok, Address.t()} | {:error, map()}
   def get_by_cep(cep) when is_binary(cep) or is_integer(cep) do

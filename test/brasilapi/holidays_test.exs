@@ -1,9 +1,9 @@
-defmodule Brasilapi.FeriadosTest do
+defmodule Brasilapi.HolidaysTest do
   use ExUnit.Case
-  doctest Brasilapi.Feriados
+  doctest Brasilapi.Holidays
 
-  alias Brasilapi.Feriados
-  alias Brasilapi.Feriados.Holiday
+  alias Brasilapi.Holidays
+  alias Brasilapi.Holidays.Holiday
   alias Brasilapi.BypassHelpers
 
   setup do
@@ -31,7 +31,7 @@ defmodule Brasilapi.FeriadosTest do
         |> Plug.Conn.resp(200, Jason.encode!(response_body))
       end)
 
-      assert {:ok, holidays} = Feriados.get_by_year(2021)
+      assert {:ok, holidays} = Holidays.get_by_year(2021)
       assert is_list(holidays)
       assert length(holidays) == 2
 

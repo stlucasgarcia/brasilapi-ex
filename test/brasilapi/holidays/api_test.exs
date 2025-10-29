@@ -1,7 +1,7 @@
-defmodule Brasilapi.Feriados.APITest do
+defmodule Brasilapi.Holidays.APITest do
   use ExUnit.Case, async: false
 
-  alias Brasilapi.Feriados.{API, Holiday}
+  alias Brasilapi.Holidays.{API, Holiday}
   alias Brasilapi.BypassHelpers
 
   setup do

@@ -1,4 +1,4 @@
-defmodule Brasilapi.Feriados.Holiday do
+defmodule Brasilapi.Holidays.Holiday do
   @moduledoc """
   Struct representing a national holiday.
   """

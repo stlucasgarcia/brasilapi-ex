@@ -13,15 +13,17 @@ defmodule Brasilapi.Banks.API do
 
   ## Examples
 
-      iex> Brasilapi.Banks.API.get_all()
+      iex> Brasilapi.Banks.API.get_banks()
       {:ok, [%Brasilapi.Banks.Bank{ispb: "00000000", name: "BCO DO BRASIL S.A.", code: 1, full_name: "Banco do Brasil S.A."}]}
 
-      iex> Brasilapi.Banks.API.get_all()
+      iex> Brasilapi.Banks.API.get_banks()
       {:error, %{reason: :timeout}}
 
+  ## API Reference
+    https://brasilapi.com.br/docs#tag/BANKS/paths/~1banks~1v1/get
   """
-  @spec get_all() :: {:ok, [Bank.t()]} | {:error, map()}
-  def get_all do
+  @spec get_banks() :: {:ok, [Bank.t()]} | {:error, map()}
+  def get_banks do
     with {:ok, banks} when is_list(banks) <- Client.get("/banks/v1") do
       valid_banks =
         banks
@@ -41,20 +43,22 @@ defmodule Brasilapi.Banks.API do
 
   ## Examples
 
-      iex> Brasilapi.Banks.API.get_by_code(1)
+      iex> Brasilapi.Banks.API.get_bank_by_code(1)
       {:ok, %Brasilapi.Banks.Bank{ispb: "00000000", name: "BCO DO BRASIL S.A.", code: 1, full_name: "Banco do Brasil S.A."}}
 
-      iex> Brasilapi.Banks.API.get_by_code(999999)
+      iex> Brasilapi.Banks.API.get_bank_by_code(999999)
       {:error, %{status: 404, message: "Not found"}}
 
+  ## API Reference
+    https://brasilapi.com.br/docs#tag/BANKS/paths/~1banks~1v1~1%7Bcode%7D/get
   """
-  @spec get_by_code(integer() | String.t()) :: {:ok, Bank.t()} | {:error, map()}
-  def get_by_code(code) when is_binary(code) or is_integer(code) do
+  @spec get_bank_by_code(integer() | String.t()) :: {:ok, Bank.t()} | {:error, map()}
+  def get_bank_by_code(code) when is_binary(code) or is_integer(code) do
     with {:ok, %{} = bank} <- Client.get("/banks/v1/#{code}"),
          do: {:ok, Bank.from_map(bank)}
   end
 
-  def get_by_code(_code) do
+  def get_bank_by_code(_code) do
     {:error, %{message: "Code must be an integer or string"}}
   end
 

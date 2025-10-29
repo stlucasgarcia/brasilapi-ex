@@ -9,8 +9,8 @@ defmodule Brasilapi.BanksTest do
     BypassHelpers.setup_bypass_for_base_url()
   end
 
-  describe "get_all/0 delegation" do
-    test "delegates to API.get_all/0", %{bypass: bypass} do
+  describe "get_banks/0 delegation" do
+    test "delegates to API.get_banks/0", %{bypass: bypass} do
       expected_response = [
         %{
           "ispb" => "00000000",
@@ -26,13 +26,13 @@ defmodule Brasilapi.BanksTest do
         |> Plug.Conn.resp(200, Jason.encode!(expected_response))
       end)
 
-      assert {:ok, [bank]} = Banks.get_all()
+      assert {:ok, [bank]} = Banks.get_banks()
       assert %Bank{ispb: "00000000", name: "BCO DO BRASIL S.A."} = bank
     end
   end
 
-  describe "get_by_code/1 delegation" do
-    test "delegates to API.get_by_code/1", %{bypass: bypass} do
+  describe "get_bank_by_code/1 delegation" do
+    test "delegates to API.get_bank_by_code/1", %{bypass: bypass} do
       expected_response = %{
         "ispb" => "00000000",
         "name" => "BCO DO BRASIL S.A.",
@@ -46,7 +46,7 @@ defmodule Brasilapi.BanksTest do
         |> Plug.Conn.resp(200, Jason.encode!(expected_response))
       end)
 
-      assert {:ok, bank} = Banks.get_by_code(1)
+      assert {:ok, bank} = Banks.get_bank_by_code(1)
       assert %Bank{ispb: "00000000", name: "BCO DO BRASIL S.A."} = bank
     end
   end

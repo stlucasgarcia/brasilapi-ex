@@ -24,6 +24,8 @@ defmodule Brasilapi.Cnpj.API do
       iex> Brasilapi.Cnpj.API.get_by_cnpj("00000000000000")
       {:error, %{status: 404, message: "Not found"}}
 
+  ## API Reference
+    https://brasilapi.com.br/docs#tag/CNPJ/paths/~1cnpj~1v1~1%7Bcnpj%7D/get
   """
   @spec get_by_cnpj(String.t() | integer()) :: {:ok, Company.t()} | {:error, map()}
   def get_by_cnpj(cnpj) do

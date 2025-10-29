@@ -8,7 +8,7 @@ defmodule Brasilapi.Banks.APITest do
     BypassHelpers.setup_bypass_for_base_url()
   end
 
-  describe "get_all/0" do
+  describe "get_banks/0" do
     test "returns list of banks on successful response", %{bypass: bypass} do
       expected_response = [
         %{
@@ -31,7 +31,7 @@ defmodule Brasilapi.Banks.APITest do
         |> Plug.Conn.resp(200, Jason.encode!(expected_response))
       end)
 
-      assert {:ok, banks} = API.get_all()
+      assert {:ok, banks} = API.get_banks()
       assert length(banks) == 2
 
       assert [
@@ -57,13 +57,13 @@ defmodule Brasilapi.Banks.APITest do
         |> Plug.Conn.resp(500, Jason.encode!(%{"error" => "Internal server error"}))
       end)
 
-      assert {:error, %{status: 500, message: "Server error"}} = API.get_all()
+      assert {:error, %{status: 500, message: "Server error"}} = API.get_banks()
     end
 
     test "returns error on network failure", %{bypass: bypass} do
       Bypass.down(bypass)
 
-      assert {:error, %{reason: :econnrefused, message: "Network error"}} = API.get_all()
+      assert {:error, %{reason: :econnrefused, message: "Network error"}} = API.get_banks()
     end
 
     test "filters out banks with nil code or empty ispb", %{bypass: bypass} do
@@ -100,7 +100,7 @@ defmodule Brasilapi.Banks.APITest do
         |> Plug.Conn.resp(200, Jason.encode!(expected_response))
       end)
 
-      assert {:ok, banks} = API.get_all()
+      assert {:ok, banks} = API.get_banks()
       assert length(banks) == 2
 
       # Should only contain banks with valid ispb (not empty) and code (not nil)
@@ -121,7 +121,7 @@ defmodule Brasilapi.Banks.APITest do
     end
   end
 
-  describe "get_by_code/1" do
+  describe "get_bank_by_code/1" do
     test "returns bank on successful response", %{bypass: bypass} do
       expected_response = %{
         "ispb" => "00000000",
@@ -136,7 +136,7 @@ defmodule Brasilapi.Banks.APITest do
         |> Plug.Conn.resp(200, Jason.encode!(expected_response))
       end)
 
-      assert {:ok, bank} = API.get_by_code(1)
+      assert {:ok, bank} = API.get_bank_by_code(1)
 
       assert %Bank{
                ispb: "00000000",
@@ -153,7 +153,7 @@ defmodule Brasilapi.Banks.APITest do
         |> Plug.Conn.resp(404, Jason.encode!(%{"error" => "Bank not found"}))
       end)
 
-      assert {:error, %{status: 404, message: "Not found"}} = API.get_by_code(999_999)
+      assert {:error, %{status: 404, message: "Not found"}} = API.get_bank_by_code(999_999)
     end
 
     test "returns error on non-200 response", %{bypass: bypass} do
@@ -163,13 +163,13 @@ defmodule Brasilapi.Banks.APITest do
         |> Plug.Conn.resp(500, Jason.encode!(%{"error" => "Internal server error"}))
       end)
 
-      assert {:error, %{status: 500, message: "Server error"}} = API.get_by_code(1)
+      assert {:error, %{status: 500, message: "Server error"}} = API.get_bank_by_code(1)
     end
 
     test "returns error on network failure", %{bypass: bypass} do
       Bypass.down(bypass)
 
-      assert {:error, %{reason: :econnrefused, message: "Network error"}} = API.get_by_code(1)
+      assert {:error, %{reason: :econnrefused, message: "Network error"}} = API.get_bank_by_code(1)
     end
 
     test "accepts string code", %{bypass: bypass} do
@@ -186,7 +186,7 @@ defmodule Brasilapi.Banks.APITest do
         |> Plug.Conn.resp(200, Jason.encode!(expected_response))
       end)
 
-      assert {:ok, bank} = API.get_by_code("1")
+      assert {:ok, bank} = API.get_bank_by_code("1")
 
       assert %Bank{
                ispb: "00000000",
@@ -197,8 +197,8 @@ defmodule Brasilapi.Banks.APITest do
     end
 
     test "returns error for invalid code type" do
-      assert {:error, %{message: "Code must be an integer or string"}} = API.get_by_code(nil)
-      assert {:error, %{message: "Code must be an integer or string"}} = API.get_by_code(%{})
+      assert {:error, %{message: "Code must be an integer or string"}} = API.get_bank_by_code(nil)
+      assert {:error, %{message: "Code must be an integer or string"}} = API.get_bank_by_code(%{})
     end
   end
 end

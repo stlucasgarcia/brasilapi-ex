@@ -1,8 +1,8 @@
-defmodule Brasilapi.Feriados.HolidayTest do
+defmodule Brasilapi.Holidays.HolidayTest do
   use ExUnit.Case
-  doctest Brasilapi.Feriados.Holiday
+  doctest Brasilapi.Holidays.Holiday
 
-  alias Brasilapi.Feriados.Holiday
+  alias Brasilapi.Holidays.Holiday
 
   describe "from_map/1" do
     test "creates Holiday struct from complete map with string keys" do

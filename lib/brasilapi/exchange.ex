@@ -12,9 +12,9 @@ defmodule Brasilapi.Exchange do
   @doc """
   Gets all available currencies for exchange rate queries.
 
-  Delegates to `Brasilapi.Exchange.API.get_currencies/0`.
+  Delegates to `Brasilapi.Exchange.API.get_exchange_currencies/0`.
   """
-  defdelegate get_currencies(), to: API
+  defdelegate get_exchange_currencies(), to: API
 
   @doc """
   Gets the exchange rate between Real and another currency for a specific date.

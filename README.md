@@ -45,7 +45,7 @@ Then run:
 
 ```elixir
 # Get all banks
-{:ok, banks} = Brasilapi.get_all_banks()
+{:ok, banks} = Brasilapi.get_banks()
 # banks =>
 # [%Brasilapi.Banks.Bank{ispb: "00000000", name: "BCO DO BRASIL S.A.", code: 1, full_name: "Banco do Brasil S.A."},
 #  %Brasilapi.Banks.Bank{ispb: "00000208", name: "BCO ORIGINAL S.A.", code: 212, full_name: "Banco Original S.A."},
@@ -173,7 +173,7 @@ Then run:
 
 ```elixir
 # Get all available tax rates and indices
-{:ok, rates} = Brasilapi.get_all_rates()
+{:ok, rates} = Brasilapi.get_rates()
 # rates =>
 # [
 #   %Brasilapi.Rates.Rate{nome: "CDI", valor: 13.65},
@@ -228,7 +228,7 @@ Then run:
 
 ```elixir
 # Get all available currencies
-{:ok, currencies} = Brasilapi.get_currencies()
+{:ok, currencies} = Brasilapi.get_exchange_currencies()
 # currencies =>
 # [%Brasilapi.Exchange.Currency{simbolo: "USD", nome: "Dólar dos Estados Unidos", tipo_moeda: "A"},
 #  %Brasilapi.Exchange.Currency{simbolo: "EUR", nome: "Euro", tipo_moeda: "A"},
@@ -464,7 +464,7 @@ For better type safety and developer experience, BrasilAPI provides struct defin
 # domain => %Brasilapi.RegistroBr.Domain{status_code: 2, status: "REGISTERED", fqdn: "brasilapi.com.br", hosts: ["bob.ns.cloudflare.com", "lily.ns.cloudflare.com"], publication_status: "published", expires_at: "2022-09-23T00:00:00-03:00", suggestions: ["agr.br", "app.br", ...]}
 
 # Exchange currency struct
-{:ok, currencies} = Brasilapi.get_currencies()
+{:ok, currencies} = Brasilapi.get_exchange_currencies()
 [%Brasilapi.Exchange.Currency{} = currency | _] = currencies
 # currency => %Brasilapi.Exchange.Currency{simbolo: "USD", nome: "Dólar dos Estados Unidos", tipo_moeda: "A"}
 
@@ -556,12 +556,7 @@ I am working towards a stable 1.0.0 release with improved consistency and compre
 
 ### 🔧 API Consistency & Naming
 
-- **Standardize English naming patterns**: All module names, function names, and public APIs will use consistent English naming while preserving Portuguese field names from the original BrasilAPI responses in documentation for reference
-- **Normalize function naming**: Migrate from `get_all_{resource}()` pattern to `get_{resources}()` pattern for better consistency:
-  - `get_all_banks()` → `get_banks()`
-  - `get_all_rates()` → `get_rates()`
-  - Similar patterns across all resource types
-- **BrasilAPI documentation**: Include the URL to the official BrasilAPI documentation for each endpoint in the function docs for easy reference
+- ✅ **Standardized English naming patterns**: All module names, function names, and public APIs use consistent English naming while preserving Portuguese field names from the original BrasilAPI responses in documentation for reference
 
 ### 🚀 Complete API Coverage
 
