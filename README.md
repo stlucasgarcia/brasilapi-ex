@@ -9,13 +9,14 @@ Brasil API lookup library for Elixir with an easy-to-use API for brazilian data 
 
 - [x] **Bancos**
 - [x] **Câmbio**
+- [ ] **CEP**
 - [x] **CEP V2**
 - [x] **CNPJ**
 - [x] **Corretoras**
 - [ ] **CPTEC**
 - [x] **DDD**
 - [x] **Feriados Nacionais**
-- [ ] **FIPE**
+- [x] **FIPE**
 - [x] **IBGE**
 - [x] **ISBN**
 - [x] **NCM**
@@ -278,6 +279,98 @@ Then run:
 # Error handling
 {:error, %{status: 404, message: "Ano fora do intervalo suportado."}} = Brasilapi.get_holidays(1900)
 {:error, %{message: "Year must be a valid positive integer"}} = Brasilapi.get_holidays("invalid")
+```
+
+### FIPE (Fundação Instituto de Pesquisas Econômicas)
+
+```elixir
+# Get vehicle brands by type
+{:ok, brands} = Brasilapi.get_fipe_brands("carros")
+# brands =>
+# [
+#   %Brasilapi.Fipe.Brand{
+#     nome: "AGRALE",
+#     valor: "102"
+#   },
+#   %Brasilapi.Fipe.Brand{
+#     nome: "FIAT",
+#     valor: "21"
+#   },
+#   # ... more brands
+# ]
+
+# Get brands for all vehicle types
+{:ok, brands} = Brasilapi.get_fipe_brands(nil)
+{:ok, brands} = Brasilapi.get_fipe_brands("")
+
+# Get brands for specific vehicle types
+{:ok, brands} = Brasilapi.get_fipe_brands("carros")     # cars
+{:ok, brands} = Brasilapi.get_fipe_brands("motos")      # motorcycles
+{:ok, brands} = Brasilapi.get_fipe_brands("caminhoes")  # trucks
+
+# Get brands with specific reference table
+{:ok, brands} = Brasilapi.get_fipe_brands("carros", tabela_referencia: 295)
+
+# Get vehicle price by FIPE code
+{:ok, prices} = Brasilapi.get_fipe_price("001004-9")
+# prices =>
+# [
+#   %Brasilapi.Fipe.Price{
+#     valor: "R$ 6.022,00",
+#     marca: "Fiat",
+#     modelo: "Palio EX 1.0 mpi 2p",
+#     ano_modelo: 1998,
+#     combustivel: "Álcool",
+#     codigo_fipe: "001004-9",
+#     mes_referencia: "junho de 2021 ",
+#     tipo_veiculo: 1,
+#     sigla_combustivel: "Á",
+#     data_consulta: "segunda-feira, 7 de junho de 2021 23:05"
+#   }
+# ]
+
+# Get price with specific reference table
+{:ok, prices} = Brasilapi.get_fipe_price("001004-9", tabela_referencia: 295)
+
+# Get all FIPE reference tables
+{:ok, tables} = Brasilapi.get_fipe_reference_tables()
+# tables =>
+# [
+#   %Brasilapi.Fipe.ReferenceTable{
+#     codigo: 271,
+#     mes: "junho/2021 "
+#   },
+#   %Brasilapi.Fipe.ReferenceTable{
+#     codigo: 270,
+#     mes: "maio/2021 "
+#   },
+#   # ... more tables
+# ]
+
+# Get vehicles by brand and type
+{:ok, vehicles} = Brasilapi.get_fipe_vehicles("carros", 21)
+# vehicles =>
+# [
+#   %Brasilapi.Fipe.Vehicle{
+#     modelo: "Palio EX 1.0 mpi 2p"
+#   },
+#   %Brasilapi.Fipe.Vehicle{
+#     modelo: "Uno Mille 1.0"
+#   },
+#   # ... more vehicles
+# ]
+
+# Get vehicles with brand code as string
+{:ok, vehicles} = Brasilapi.get_fipe_vehicles("carros", "21")
+
+# Get vehicles with specific reference table
+{:ok, vehicles} = Brasilapi.get_fipe_vehicles("carros", 21, tabela_referencia: 295)
+
+# Error handling
+{:error, %{message: "Invalid vehicle type: invalid. Valid types are: caminhoes, carros, motos"}} = Brasilapi.get_fipe_brands("invalid")
+{:error, %{message: "Invalid FIPE code format. Must be in format XXXXXX-X (e.g., 001004-9)"}} = Brasilapi.get_fipe_price("invalid")
+{:error, %{message: "Vehicle type must be a string or nil"}} = Brasilapi.get_fipe_brands(123)
+{:error, %{status: 500, message: "Server error"}} = Brasilapi.get_fipe_reference_tables()  # when API is down
 ```
 
 ### IBGE (Instituto Brasileiro de Geografia e Estatística)
@@ -621,6 +714,10 @@ For better type safety and developer experience, BrasilAPI provides struct defin
 - `Brasilapi.Cnpj.Company` - Company information with comprehensive business data
 - `Brasilapi.Ddd.Info` - DDD/Area code information with state and cities
 - `Brasilapi.Holidays.Holiday` - National holiday information with date, name, and type
+- `Brasilapi.Fipe.Brand` - FIPE vehicle brand information with name and code
+- `Brasilapi.Fipe.Price` - FIPE vehicle price information with detailed specifications, fuel type, and reference date
+- `Brasilapi.Fipe.ReferenceTable` - FIPE reference table with code and month
+- `Brasilapi.Fipe.Vehicle` - FIPE vehicle model information
 - `Brasilapi.Ibge.Region` - Brazilian region information with ID, abbreviation, and name
 - `Brasilapi.Ibge.State` - Brazilian state (UF) information with ID, abbreviation, name, and region
 - `Brasilapi.Ibge.Municipality` - Brazilian municipality information with name and IBGE code

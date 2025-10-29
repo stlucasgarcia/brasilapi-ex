@@ -37,6 +37,18 @@ defmodule Brasilapi do
       # Get national holidays
       {:ok, holidays} = Brasilapi.get_holidays(2021)
 
+      # Get FIPE vehicle brands
+      {:ok, brands} = Brasilapi.get_fipe_brands("carros")
+
+      # Get FIPE vehicle price
+      {:ok, prices} = Brasilapi.get_fipe_price("001004-9")
+
+      # Get FIPE reference tables
+      {:ok, tables} = Brasilapi.get_fipe_reference_tables()
+
+      # Get FIPE vehicles by brand
+      {:ok, vehicles} = Brasilapi.get_fipe_vehicles("carros", 1)
+
       # Get all Brazilian states
       {:ok, states} = Brasilapi.get_states()
 
@@ -79,6 +91,7 @@ defmodule Brasilapi do
     Cnpj,
     Ddd,
     Exchange,
+    Fipe,
     Holidays,
     Ibge,
     Isbn,
@@ -181,6 +194,50 @@ defmodule Brasilapi do
     https://brasilapi.com.br/docs#tag/Feriados-Nacionais/paths/~1feriados~1v1~1%7Bano%7D/get
   """
   defdelegate get_holidays(year), to: Holidays, as: :get_by_year
+
+  # FIPE
+
+  @doc """
+  Get vehicle brands by type from FIPE table.
+
+  Returns a list of brands for a specific vehicle type or all types.
+
+  ## API Reference
+    https://brasilapi.com.br/docs#tag/FIPE/paths/~1fipe~1marcas~1v1~1%7BtipoVeiculo%7D/get
+  """
+  defdelegate get_fipe_brands(vehicle_type \\ nil, opts \\ []), to: Fipe, as: :get_brands
+
+  @doc """
+  Get vehicle price by FIPE code.
+
+  Returns detailed price information for a specific vehicle according to the FIPE table.
+
+  ## API Reference
+    https://brasilapi.com.br/docs#tag/FIPE/paths/~1fipe~1preco~1v1~1%7BcodigoFipe%7D/get
+  """
+  defdelegate get_fipe_price(fipe_code, opts \\ []), to: Fipe, as: :get_price
+
+  @doc """
+  Get all available FIPE reference tables.
+
+  Returns a list of all reference tables with their codes and months.
+
+  ## API Reference
+    https://brasilapi.com.br/docs#tag/FIPE/paths/~1fipe~1tabelas~1v1/get
+  """
+  defdelegate get_fipe_reference_tables(), to: Fipe, as: :get_reference_tables
+
+  @doc """
+  Get vehicles by brand and type from FIPE table.
+
+  Returns a list of vehicle models for a specific brand and vehicle type.
+
+  ## API Reference
+    https://brasilapi.com.br/docs#tag/FIPE/paths/~1fipe~1veiculos~1v1~1%7BtipoVeiculo%7D~1%7BcodigoMarca%7D/get
+  """
+  defdelegate get_fipe_vehicles(vehicle_type, brand_code, opts \\ []),
+    to: Fipe,
+    as: :get_vehicles
 
   # IBGE
 
