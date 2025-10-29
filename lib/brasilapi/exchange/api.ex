@@ -20,6 +20,8 @@ defmodule Brasilapi.Exchange.API do
       iex> Brasilapi.Exchange.API.get_exchange_currencies()
       {:error, %{status: 500, message: "Internal server error"}}
 
+  ## API Reference
+    https://brasilapi.com.br/docs#tag/CAMBIO/paths/~1cambio~1v1~1moedas/get
   """
   @spec get_exchange_currencies() :: {:ok, [Currency.t()]} | {:error, map()}
   def get_exchange_currencies do
@@ -52,6 +54,8 @@ defmodule Brasilapi.Exchange.API do
       iex> Brasilapi.Exchange.API.get_exchange_rate("INVALID", "2025-02-13")
       {:error, %{status: 404, message: "Not found"}}
 
+  ## API Reference
+    https://brasilapi.com.br/docs#tag/CAMBIO/paths/~1cambio~1v1~1cotacao~1%7Bmoeda%7D~1%7Bdata%7D/get
   """
   @spec get_exchange_rate(String.t(), String.t() | Date.t() | DateTime.t() | NaiveDateTime.t()) ::
           {:ok, DailyExchangeRate.t()} | {:error, map()}

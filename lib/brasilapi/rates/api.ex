@@ -13,15 +13,17 @@ defmodule Brasilapi.Rates.API do
 
   ## Examples
 
-      iex> Brasilapi.Rates.API.get_all()
+      iex> Brasilapi.Rates.API.get_rates()
       {:ok, [%Brasilapi.Rates.Rate{nome: "CDI", valor: 14.9}]}
 
-      iex> Brasilapi.Rates.API.get_all()
+      iex> Brasilapi.Rates.API.get_rates()
       {:error, %{reason: :timeout}}
 
+  ## API Reference
+    https://brasilapi.com.br/docs#tag/TAXAS/paths/~1taxas~1v1/get
   """
-  @spec get_all() :: {:ok, [Rate.t()]} | {:error, map()}
-  def get_all do
+  @spec get_rates() :: {:ok, [Rate.t()]} | {:error, map()}
+  def get_rates do
     with {:ok, taxas} when is_list(taxas) <- Client.get("/taxas/v1") do
       parsed_taxas = Enum.map(taxas, &Rate.from_map/1)
       {:ok, parsed_taxas}
@@ -37,20 +39,22 @@ defmodule Brasilapi.Rates.API do
 
   ## Examples
 
-      iex> Brasilapi.Rates.API.get_by_acronym("CDI")
+      iex> Brasilapi.Rates.API.get_rates_by_acronym("CDI")
       {:ok, %Brasilapi.Taxas.Rate{nome: "CDI", valor: 14.9}}
 
-      iex> Brasilapi.Rates.API.get_by_acronym("INVALID")
+      iex> Brasilapi.Rates.API.get_rates_by_acronym("INVALID")
       {:error, %{status: 404, message: "Not found"}}
 
+  ## API Reference
+    https://brasilapi.com.br/docs#tag/TAXAS/paths/~1taxas~1v1~1%7Bsigla%7D/get
   """
-  @spec get_by_acronym(String.t()) :: {:ok, Rate.t()} | {:error, map()}
-  def get_by_acronym(acronym) when is_binary(acronym) do
+  @spec get_rates_by_acronym(String.t()) :: {:ok, Rate.t()} | {:error, map()}
+  def get_rates_by_acronym(acronym) when is_binary(acronym) do
     with {:ok, %{} = taxa} <- Client.get("/taxas/v1/#{acronym}"),
          do: {:ok, Rate.from_map(taxa)}
   end
 
-  def get_by_acronym(_acronym) do
+  def get_rates_by_acronym(_acronym) do
     {:error, %{message: "Acronym must be a string"}}
   end
 end

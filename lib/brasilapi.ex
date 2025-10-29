@@ -168,7 +168,7 @@ defmodule Brasilapi do
   Get book information by ISBN from multiple providers.
 
   ## API Reference
-  https://brasilapi.com.br/docs#tag/ISBN/paths/~1isbn~1v1~1%7Bisbn%7D/get
+    https://brasilapi.com.br/docs#tag/ISBN/paths/~1isbn~1v1~1%7Bisbn%7D/get
   """
   defdelegate get_book(isbn, opts \\ []), to: Isbn
 
@@ -200,7 +200,7 @@ defmodule Brasilapi do
   ## API Reference
     https://brasilapi.com.br/docs#tag/TAXAS/paths/~1taxas~1v1/get
   """
-  defdelegate get_rates(), to: Rates, as: :get_all
+  defdelegate get_rates(), to: Rates, as: :get_rates
 
   @doc """
   Get a specific tax rate or index by its name/acronym.
@@ -208,5 +208,5 @@ defmodule Brasilapi do
   ## API Reference
     https://brasilapi.com.br/docs#tag/TAXAS/paths/~1taxas~1v1~1%7Bsigla%7D/get
   """
-  defdelegate get_rate_by_acronym(acronym), to: Rates, as: :get_by_acronym
+  defdelegate get_rate_by_acronym(acronym), to: Rates, as: :get_rates_by_acronym
 end

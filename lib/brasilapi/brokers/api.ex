@@ -23,6 +23,8 @@ defmodule Brasilapi.Brokers.API do
       iex> Brasilapi.Brokers.API.get_brokers()
       {:error, %{status: 500, message: "Internal server error"}}
 
+  ## API Reference
+    https://brasilapi.com.br/docs#tag/Corretoras/paths/~1cvm~1corretoras~1v1/get
   """
   @spec get_brokers() :: {:ok, [Broker.t()]} | {:error, map()}
   def get_brokers do
@@ -54,6 +56,8 @@ defmodule Brasilapi.Brokers.API do
       iex> Brasilapi.Brokers.API.get_broker_by_cnpj("00000000000000")
       {:error, %{status: 404, message: "Não foi encontrado este CNPJ na listagem da CVM."}}
 
+  ## API Reference
+    https://brasilapi.com.br/docs#tag/Corretoras/paths/~1cvm~1corretoras~1v1~1%7Bcnpj%7D/get
   """
   @spec get_broker_by_cnpj(String.t() | integer()) :: {:ok, Broker.t()} | {:error, map()}
   def get_broker_by_cnpj(cnpj) do

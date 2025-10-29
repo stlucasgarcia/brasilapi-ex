@@ -25,6 +25,8 @@ defmodule Brasilapi.RegistroBr.API do
       iex> Brasilapi.RegistroBr.API.get_domain_info("nonexistentdomain.com.br")
       {:error, %{status: 400, message: "Bad request"}}
 
+  ## API Reference
+    https://brasilapi.com.br/docs#tag/REGISTRO-BR/paths/~1registrobr~1v1~1%7Bdomain%7D/get
   """
   @spec get_domain_info(String.t()) :: {:ok, Domain.t()} | {:error, map()}
   def get_domain_info(domain) when is_binary(domain) do

@@ -53,6 +53,8 @@ defmodule Brasilapi.Isbn.API do
       iex> Brasilapi.Isbn.API.get_book("invalid")
       {:error, %{message: "Invalid ISBN format. Must be 10 or 13 digits."}}
 
+  ## API Reference
+    https://brasilapi.com.br/docs#tag/ISBN/paths/~1isbn~1v1~1%7Bisbn%7D/get
   """
   @spec get_book(String.t(), keyword()) :: {:ok, Book.t()} | {:error, map()}
   def get_book(isbn, opts \\ []) do

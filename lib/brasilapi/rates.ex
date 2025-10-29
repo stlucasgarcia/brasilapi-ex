@@ -11,14 +11,14 @@ defmodule Brasilapi.Rates do
   @doc """
   Fetches information about all available tax rates and indices.
 
-  Delegates to `Brasilapi.Rates.API.get_all/0`.
+  Delegates to `Brasilapi.Rates.API.get_rates/0`.
   """
-  defdelegate get_all(), to: API
+  defdelegate get_rates(), to: API
 
   @doc """
   Fetches information about a specific tax rate or index by its name/acronym.
 
-  Delegates to `Brasilapi.Rates.API.get_by_acronym/1`.
+  Delegates to `Brasilapi.Rates.API.get_rates_by_acronym/1`.
   """
-  defdelegate get_by_acronym(acronym), to: API
+  defdelegate get_rates_by_acronym(acronym), to: API
 end

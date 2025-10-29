@@ -19,6 +19,8 @@ defmodule Brasilapi.Pix.API do
       iex> Brasilapi.Pix.API.get_participants()
       {:error, %{reason: :timeout}}
 
+  ## API Reference
+    https://brasilapi.com.br/docs#tag/PIX/paths/~1pix~1v1~1participants/get
   """
   @spec get_participants() :: {:ok, [Participant.t()]} | {:error, map()}
   def get_participants do
