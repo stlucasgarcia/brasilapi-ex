@@ -56,6 +56,51 @@ Then run:
 # bank => %Brasilapi.Banks.Bank{ispb: "00000000", name: "BCO DO BRASIL S.A.", code: 1, full_name: "Banco do Brasil S.A."}
 ```
 
+### Exchange (Currency Exchange Rates)
+
+```elixir
+# Get all available currencies
+{:ok, currencies} = Brasilapi.get_exchange_currencies()
+# currencies =>
+# [%Brasilapi.Exchange.Currency{simbolo: "USD", nome: "Dólar dos Estados Unidos", tipo_moeda: "A"},
+#  %Brasilapi.Exchange.Currency{simbolo: "EUR", nome: "Euro", tipo_moeda: "A"},
+#  ...]
+
+# Get exchange rate for a specific currency and date
+{:ok, daily_exchange_rate} = Brasilapi.get_exchange_rate("USD", "2025-02-13")
+
+# Also accepts Date/DateTime/NaiveDateTime structs
+{:ok, daily_exchange_rate} = Brasilapi.get_exchange_rate("USD", ~D[2025-02-13])
+{:ok, daily_exchange_rate} = Brasilapi.get_exchange_rate("USD", ~U[2025-02-13 14:30:00Z])
+{:ok, daily_exchange_rate} = Brasilapi.get_exchange_rate("USD", ~N[2025-02-13 14:30:00])
+
+# daily_exchange_rate =>
+# %Brasilapi.Exchange.DailyExchangeRate{
+#   moeda: "USD",
+#   data: "2025-02-13",
+#   cotacoes: [
+#     %Brasilapi.Exchange.ExchangeRate{
+#       paridade_compra: 1,
+#       paridade_venda: 1,
+#       cotacao_compra: 5.7624,
+#       cotacao_venda: 5.763,
+#       data_hora_cotacao: "2025-02-13 13:03:25.722",
+#       tipo_boletim: "INTERMEDIÁRIO"
+#     }
+#   ]
+# }
+
+# Available currencies: AUD, CAD, CHF, DKK, EUR, GBP, JPY, SEK, USD
+# Data available from November 28, 1984 onwards
+# For weekends and holidays, returns last available business day
+# Date accepts: String (YYYY-MM-DD), Date, DateTime, NaiveDateTime
+
+# Error handling
+{:error, %{status: 404, message: "Not found"}} = Brasilapi.get_exchange_rate("INVALID", "2025-02-13")
+{:error, %{message: "Invalid date format. Must be YYYY-MM-DD"}} = Brasilapi.get_exchange_rate("USD", "invalid-date")
+{:error, %{message: "Currency must be a string and date must be a valid date"}} = Brasilapi.get_exchange_rate(123, "2025-02-13")
+```
+
 ### CEP V2 (Postal Codes)
 
 ```elixir
@@ -110,189 +155,6 @@ Then run:
 # Error handling
 {:error, %{status: 404, message: "Not found"}} = Brasilapi.get_cnpj("00000000000000")
 {:error, %{message: "Invalid CNPJ format. Must be 14 digits."}} = Brasilapi.get_cnpj("123")
-```
-
-### DDD (Area Codes)
-
-```elixir
-# Get DDD information (area codes) - includes state and list of cities
-{:ok, ddd_info} = Brasilapi.get_ddd(11)
-# ddd_info =>
-# %Brasilapi.Ddd.Info{
-#   state: "SP",
-#   cities: [
-#     "EMBU",
-#     "VÁRZEA PAULISTA",
-#     "VARGEM GRANDE PAULISTA",
-#     "SÃO PAULO",
-#     # ... more cities
-#   ]
-# }
-
-# DDD can be provided as string or integer
-{:ok, ddd_info} = Brasilapi.get_ddd("11")  # string
-{:ok, ddd_info} = Brasilapi.get_ddd(11)    # integer
-
-# Error handling
-{:error, %{status: 404, message: "DDD não encontrado"}} = Brasilapi.get_ddd(99)
-{:error, %{message: "DDD must be exactly 2 digits"}} = Brasilapi.get_ddd("123")
-```
-
-### Feriados Nacionais (National Holidays)
-
-```elixir
-# Get national holidays for a specific year
-{:ok, holidays} = Brasilapi.get_holidays(2021)
-# holidays =>
-# [
-#   %Brasilapi.Feriados.Holiday{
-#     date: "2021-01-01",
-#     name: "Confraternização mundial",
-#     type: "national",
-#     full_name: nil
-#   },
-#   %Brasilapi.Feriados.Holiday{
-#     date: "2021-04-21",
-#     name: "Tiradentes",
-#     type: "national",
-#     full_name: nil
-#   },
-#   # ... more holidays
-# ]
-
-# Year can be provided as string or integer
-{:ok, holidays} = Brasilapi.get_holidays("2021")  # string
-{:ok, holidays} = Brasilapi.get_holidays(2021)    # integer
-
-# Error handling
-{:error, %{status: 404, message: "Ano fora do intervalo suportado."}} = Brasilapi.get_holidays(1900)
-{:error, %{message: "Year must be a valid positive integer"}} = Brasilapi.get_holidays("invalid")
-```
-
-### Rates (Tax Rates and Official Indices)
-
-```elixir
-# Get all available tax rates and indices
-{:ok, rates} = Brasilapi.get_rates()
-# rates =>
-# [
-#   %Brasilapi.Rates.Rate{nome: "CDI", valor: 13.65},
-#   %Brasilapi.Rates.Rate{nome: "SELIC", valor: 13.75},
-#   %Brasilapi.Rates.Rate{nome: "IPCA", valor: 4.62},
-#   # ... more rates and indices
-# ]
-
-# Get a specific tax rate by its name/acronym
-{:ok, rate} = Brasilapi.get_rate_by_acronym("CDI")
-# rate => %Brasilapi.Rates.Rate{nome: "CDI", valor: 13.65}
-
-{:ok, rate} = Brasilapi.get_rate_by_acronym("SELIC")
-# rate => %Brasilapi.Rates.Rate{nome: "SELIC", valor: 13.75}
-
-# Error handling
-{:error, %{status: 404, message: "Not found"}} = Brasilapi.get_rate_by_acronym("INVALID_RATE")
-{:error, %{message: "Acronym must be a string"}} = Brasilapi.get_rate_by_acronym(123)
-```
-
-### PIX (Brazilian Instant Payment System)
-
-```elixir
-# Get all PIX participants
-{:ok, participants} = Brasilapi.get_pix_participants()
-# participants =>
-# [
-#   %Brasilapi.Pix.Participant{
-#     ispb: "360305",
-#     nome: "CAIXA ECONOMICA FEDERAL",
-#     nome_reduzido: "CAIXA ECONOMICA FEDERAL",
-#     modalidade_participacao: "PDCT",
-#     tipo_participacao: "DRCT",
-#     inicio_operacao: "2020-11-03T09:30:00.000Z"
-#   },
-#   %Brasilapi.Pix.Participant{
-#     ispb: "00000000",
-#     nome: "BANCO DO BRASIL S.A.",
-#     nome_reduzido: "BCO DO BRASIL S.A.",
-#     modalidade_participacao: "DRCT",
-#     tipo_participacao: "DRCT",
-#     inicio_operacao: "2020-10-16T08:00:00.000Z"
-#   },
-#   # ... more participants
-# ]
-
-# Error handling
-{:error, %{status: 500, message: "Server error"}} = Brasilapi.get_pix_participants()  # when API is down
-```
-
-### Exchange (Currency Exchange Rates)
-
-```elixir
-# Get all available currencies
-{:ok, currencies} = Brasilapi.get_exchange_currencies()
-# currencies =>
-# [%Brasilapi.Exchange.Currency{simbolo: "USD", nome: "Dólar dos Estados Unidos", tipo_moeda: "A"},
-#  %Brasilapi.Exchange.Currency{simbolo: "EUR", nome: "Euro", tipo_moeda: "A"},
-#  ...]
-
-# Get exchange rate for a specific currency and date
-{:ok, daily_exchange_rate} = Brasilapi.get_exchange_rate("USD", "2025-02-13")
-
-# Also accepts Date/DateTime/NaiveDateTime structs
-{:ok, daily_exchange_rate} = Brasilapi.get_exchange_rate("USD", ~D[2025-02-13])
-{:ok, daily_exchange_rate} = Brasilapi.get_exchange_rate("USD", ~U[2025-02-13 14:30:00Z])
-{:ok, daily_exchange_rate} = Brasilapi.get_exchange_rate("USD", ~N[2025-02-13 14:30:00])
-
-# daily_exchange_rate =>
-# %Brasilapi.Exchange.DailyExchangeRate{
-#   moeda: "USD",
-#   data: "2025-02-13",
-#   cotacoes: [
-#     %Brasilapi.Exchange.ExchangeRate{
-#       paridade_compra: 1,
-#       paridade_venda: 1,
-#       cotacao_compra: 5.7624,
-#       cotacao_venda: 5.763,
-#       data_hora_cotacao: "2025-02-13 13:03:25.722",
-#       tipo_boletim: "INTERMEDIÁRIO"
-#     }
-#   ]
-# }
-
-# Available currencies: AUD, CAD, CHF, DKK, EUR, GBP, JPY, SEK, USD
-# Data available from November 28, 1984 onwards
-# For weekends and holidays, returns last available business day
-# Date accepts: String (YYYY-MM-DD), Date, DateTime, NaiveDateTime
-
-# Error handling
-{:error, %{status: 404, message: "Not found"}} = Brasilapi.get_exchange_rate("INVALID", "2025-02-13")
-{:error, %{message: "Invalid date format. Must be YYYY-MM-DD"}} = Brasilapi.get_exchange_rate("USD", "invalid-date")
-{:error, %{message: "Currency must be a string and date must be a valid date"}} = Brasilapi.get_exchange_rate(123, "2025-02-13")
-```
-
-### RegistroBR (Brazilian Domain Registration)
-
-```elixir
-# Get domain information for .br domains
-{:ok, domain} = Brasilapi.get_domain_info("brasilapi.com.br")
-# domain =>
-# %Brasilapi.RegistroBr.Domain{
-#   status_code: 2,
-#   status: "REGISTERED",
-#   fqdn: "brasilapi.com.br",
-#   hosts: ["bob.ns.cloudflare.com", "lily.ns.cloudflare.com"],
-#   publication_status: "published",
-#   expires_at: "2022-09-23T00:00:00-03:00",
-#   suggestions: ["agr.br", "app.br", "art.br", "blog.br", "dev.br", ...]
-# }
-
-# Check if domain is available
-{:ok, domain} = Brasilapi.get_domain_info("available-domain.com.br")
-# domain.status => "AVAILABLE"
-# domain.suggestions => ["net.br", "org.br", "edu.br", ...]
-
-# Error handling
-{:error, %{status: 400, message: "Bad request"}} = Brasilapi.get_domain_info("invalid-domain")
-{:error, %{message: "Domain must be a string"}} = Brasilapi.get_domain_info(123)
 ```
 
 ### Brokers (Brokerage Firms)
@@ -361,6 +223,63 @@ Then run:
 {:error, %{message: "Invalid CNPJ format. Must be 14 digits."}} = Brasilapi.get_broker_by_cnpj("123")
 ```
 
+### DDD (Area Codes)
+
+```elixir
+# Get DDD information (area codes) - includes state and list of cities
+{:ok, ddd_info} = Brasilapi.get_ddd(11)
+# ddd_info =>
+# %Brasilapi.Ddd.Info{
+#   state: "SP",
+#   cities: [
+#     "EMBU",
+#     "VÁRZEA PAULISTA",
+#     "VARGEM GRANDE PAULISTA",
+#     "SÃO PAULO",
+#     # ... more cities
+#   ]
+# }
+
+# DDD can be provided as string or integer
+{:ok, ddd_info} = Brasilapi.get_ddd("11")  # string
+{:ok, ddd_info} = Brasilapi.get_ddd(11)    # integer
+
+# Error handling
+{:error, %{status: 404, message: "DDD não encontrado"}} = Brasilapi.get_ddd(99)
+{:error, %{message: "DDD must be exactly 2 digits"}} = Brasilapi.get_ddd("123")
+```
+
+### Feriados Nacionais (National Holidays)
+
+```elixir
+# Get national holidays for a specific year
+{:ok, holidays} = Brasilapi.get_holidays(2021)
+# holidays =>
+# [
+#   %Brasilapi.Holidays.Holiday{
+#     date: "2021-01-01",
+#     name: "Confraternização mundial",
+#     type: "national",
+#     full_name: nil
+#   },
+#   %Brasilapi.Holidays.Holiday{
+#     date: "2021-04-21",
+#     name: "Tiradentes",
+#     type: "national",
+#     full_name: nil
+#   },
+#   # ... more holidays
+# ]
+
+# Year can be provided as string or integer
+{:ok, holidays} = Brasilapi.get_holidays("2021")  # string
+{:ok, holidays} = Brasilapi.get_holidays(2021)    # integer
+
+# Error handling
+{:error, %{status: 404, message: "Ano fora do intervalo suportado."}} = Brasilapi.get_holidays(1900)
+{:error, %{message: "Year must be a valid positive integer"}} = Brasilapi.get_holidays("invalid")
+```
+
 ### ISBN (International Standard Book Number)
 
 ```elixir
@@ -414,6 +333,87 @@ Then run:
 {:error, %{message: "Invalid ISBN format. Must be 10 or 13 digits."}} = Brasilapi.get_book("123")
 {:error, %{message: "Invalid providers: invalid. Valid providers are: cbl, mercado-editorial, open-library, google-books"}} = Brasilapi.get_book("9788545702870", providers: ["invalid"])
 ```
+### PIX (Brazilian Instant Payment System)
+
+```elixir
+# Get all PIX participants
+{:ok, participants} = Brasilapi.get_pix_participants()
+# participants =>
+# [
+#   %Brasilapi.Pix.Participant{
+#     ispb: "360305",
+#     nome: "CAIXA ECONOMICA FEDERAL",
+#     nome_reduzido: "CAIXA ECONOMICA FEDERAL",
+#     modalidade_participacao: "PDCT",
+#     tipo_participacao: "DRCT",
+#     inicio_operacao: "2020-11-03T09:30:00.000Z"
+#   },
+#   %Brasilapi.Pix.Participant{
+#     ispb: "00000000",
+#     nome: "BANCO DO BRASIL S.A.",
+#     nome_reduzido: "BCO DO BRASIL S.A.",
+#     modalidade_participacao: "DRCT",
+#     tipo_participacao: "DRCT",
+#     inicio_operacao: "2020-10-16T08:00:00.000Z"
+#   },
+#   # ... more participants
+# ]
+
+# Error handling
+{:error, %{status: 500, message: "Server error"}} = Brasilapi.get_pix_participants()  # when API is down
+```
+
+### RegistroBR (Brazilian Domain Registration)
+
+```elixir
+# Get domain information for .br domains
+{:ok, domain} = Brasilapi.get_domain_info("brasilapi.com.br")
+# domain =>
+# %Brasilapi.RegistroBr.Domain{
+#   status_code: 2,
+#   status: "REGISTERED",
+#   fqdn: "brasilapi.com.br",
+#   hosts: ["bob.ns.cloudflare.com", "lily.ns.cloudflare.com"],
+#   publication_status: "published",
+#   expires_at: "2022-09-23T00:00:00-03:00",
+#   suggestions: ["agr.br", "app.br", "art.br", "blog.br", "dev.br", ...]
+# }
+
+# Check if domain is available
+{:ok, domain} = Brasilapi.get_domain_info("available-domain.com.br")
+# domain.status => "AVAILABLE"
+# domain.suggestions => ["net.br", "org.br", "edu.br", ...]
+
+# Error handling
+{:error, %{status: 400, message: "Bad request"}} = Brasilapi.get_domain_info("invalid-domain")
+{:error, %{message: "Domain must be a string"}} = Brasilapi.get_domain_info(123)
+```
+
+### Rates (Tax Rates and Official Indices)
+
+```elixir
+# Get all available tax rates and indices
+{:ok, rates} = Brasilapi.get_rates()
+# rates =>
+# [
+#   %Brasilapi.Rates.Rate{nome: "CDI", valor: 13.65},
+#   %Brasilapi.Rates.Rate{nome: "SELIC", valor: 13.75},
+#   %Brasilapi.Rates.Rate{nome: "IPCA", valor: 4.62},
+#   # ... more rates and indices
+# ]
+
+# Get a specific tax rate by its name/acronym
+{:ok, rate} = Brasilapi.get_rate_by_acronym("CDI")
+# rate => %Brasilapi.Rates.Rate{nome: "CDI", valor: 13.65}
+
+{:ok, rate} = Brasilapi.get_rate_by_acronym("SELIC")
+# rate => %Brasilapi.Rates.Rate{nome: "SELIC", valor: 13.75}
+
+# Error handling
+{:error, %{status: 404, message: "Not found"}} = Brasilapi.get_rate_by_acronym("INVALID_RATE")
+{:error, %{message: "Acronym must be a string"}} = Brasilapi.get_rate_by_acronym(123)
+```
+
 
 ## Response Types with Structs
 
@@ -447,8 +447,8 @@ For better type safety and developer experience, BrasilAPI provides struct defin
 
 # Holiday struct
 {:ok, holidays} = Brasilapi.get_holidays(2021)
-[%Brasilapi.Feriados.Holiday{} = holiday | _] = holidays
-# holiday => %Brasilapi.Feriados.Holiday{date: "2021-01-01", name: "Confraternização mundial", type: "national", full_name: nil}
+[%Brasilapi.Holidays.Holiday{} = holiday | _] = holidays
+# holiday => %Brasilapi.Holidays.Holiday{date: "2021-01-01", name: "Confraternização mundial", type: "national", full_name: nil}
 
 # Tax rate struct
 {:ok, %Brasilapi.Rates.Rate{} = rate} = Brasilapi.get_rate_by_acronym("CDI")
@@ -480,7 +480,7 @@ For better type safety and developer experience, BrasilAPI provides struct defin
 - `Brasilapi.Cep.Address` - CEP/Address information with location data
 - `Brasilapi.Cnpj.Company` - Company information with comprehensive business data
 - `Brasilapi.Ddd.Info` - DDD/Area code information with state and cities
-- `Brasilapi.Feriados.Holiday` - National holiday information with date, name, and type
+- `Brasilapi.Holidays.Holiday` - National holiday information with date, name, and type
 - `Brasilapi.Isbn.Book` - Book information with title, authors, publisher, synopsis, dimensions, and metadata
 - `Brasilapi.Isbn.Dimensions` - Book dimensions with width, height, and unit measurements
 - `Brasilapi.Pix.Participant` - PIX participant information with ISPB, names, and participation details
