@@ -18,7 +18,7 @@ Brasil API lookup library for Elixir with an easy-to-use API for brazilian data 
 - [ ] **FIPE**
 - [ ] **IBGE**
 - [x] **ISBN**
-- [ ] **NCM**
+- [x] **NCM**
 - [x] **PIX**
 - [x] **Registros BR**
 - [x] **Rates**
@@ -333,6 +333,69 @@ Then run:
 {:error, %{message: "Invalid ISBN format. Must be 10 or 13 digits."}} = Brasilapi.get_book("123")
 {:error, %{message: "Invalid providers: invalid. Valid providers are: cbl, mercado-editorial, open-library, google-books"}} = Brasilapi.get_book("9788545702870", providers: ["invalid"])
 ```
+
+### NCM (Nomenclatura Comum do Mercosul)
+
+```elixir
+# Get all NCM codes
+{:ok, ncms} = Brasilapi.get_ncm_by_codes()
+# ncms =>
+# [
+#   %Brasilapi.Ncm.Ncm{
+#     codigo: "3305.10.00",
+#     descricao: "- Xampus",
+#     data_inicio: "2022-04-01",
+#     data_fim: "9999-12-31",
+#     tipo_ato: "Res Camex",
+#     numero_ato: "000272",
+#     ano_ato: "2021"
+#   },
+#   # ... more NCM codes
+# ]
+
+# Search NCM codes by keyword or partial code
+{:ok, ncms} = Brasilapi.search_ncms("xampu")
+# ncms =>
+# [
+#   %Brasilapi.Ncm.Ncm{
+#     codigo: "3305.10.00",
+#     descricao: "- Xampus",
+#     data_inicio: "2022-04-01",
+#     data_fim: "9999-12-31",
+#     tipo_ato: "Res Camex",
+#     numero_ato: "000272",
+#     ano_ato: "2021"
+#   }
+# ]
+
+# Search by partial code
+{:ok, ncms} = Brasilapi.search_ncms("3305")
+# Returns all NCM codes starting with 3305
+
+# Get specific NCM by code (formatted or unformatted)
+{:ok, ncm} = Brasilapi.get_ncm_by_code("33051000")
+# ncm =>
+# %Brasilapi.Ncm.Ncm{
+#   codigo: "3305.10.00",
+#   descricao: "- Xampus",
+#   data_inicio: "2022-04-01",
+#   data_fim: "9999-12-31",
+#   tipo_ato: "Res Camex",
+#   numero_ato: "000272",
+#   ano_ato: "2021"
+# }
+
+# Code can be provided with or without formatting
+{:ok, ncm} = Brasilapi.get_ncm_by_code("3305.10.00")  # formatted
+{:ok, ncm} = Brasilapi.get_ncm_by_code("33051000")    # unformatted
+{:ok, ncm} = Brasilapi.get_ncm_by_code(33051000)      # integer
+
+# Error handling
+{:error, %{status: 404, message: "Not found"}} = Brasilapi.get_ncm_by_code("99999999")
+{:error, %{message: "Code must be a string or integer"}} = Brasilapi.get_ncm_by_code(nil)
+{:error, %{message: "Search query must be a string"}} = Brasilapi.search_ncms(123)
+```
+
 ### PIX (Brazilian Instant Payment System)
 
 ```elixir
@@ -414,7 +477,6 @@ Then run:
 {:error, %{message: "Acronym must be a string"}} = Brasilapi.get_rate_by_acronym(123)
 ```
 
-
 ## Response Types with Structs
 
 For better type safety and developer experience, BrasilAPI provides struct definitions for all response types. You can use these structs to work with typed data instead of raw maps:
@@ -483,6 +545,7 @@ For better type safety and developer experience, BrasilAPI provides struct defin
 - `Brasilapi.Holidays.Holiday` - National holiday information with date, name, and type
 - `Brasilapi.Isbn.Book` - Book information with title, authors, publisher, synopsis, dimensions, and metadata
 - `Brasilapi.Isbn.Dimensions` - Book dimensions with width, height, and unit measurements
+- `Brasilapi.Ncm.Ncm` - NCM (Nomenclatura Comum do Mercosul) code information with classification, description, and legal act details
 - `Brasilapi.Pix.Participant` - PIX participant information with ISPB, names, and participation details
 - `Brasilapi.Rates.Rate` - Tax rates and official indices with name and value
 - `Brasilapi.RegistroBr.Domain` - Brazilian domain registration information with status, hosts, and suggestions
@@ -519,8 +582,8 @@ Brasilapi.get_cnpj(197)  # Becomes "00000000000197"
 For complete CNPJ validation including checksum verification, consider using a dedicated library such as [brcpfcnpj](https://hex.pm/packages/brcpfcnpj):
 
 ```elixir
-# Add to your dependencies for full validation
-{:brcpfcnpj, "~> 1.0"}
+# Add to your dependencies for full validationnet
+{:brcpfcnpj, "~> 2.0"}
 
 # Use before calling BrasilAPI
 if Brcpfcnpj.cnpj_valid?("11.000.000/0001-97") do
@@ -554,22 +617,12 @@ config :brasilapi,
 
 I am working towards a stable 1.0.0 release with improved consistency and comprehensive API coverage. Here's what's planned:
 
-### 🔧 API Consistency & Naming
-
-- ✅ **Standardized English naming patterns**: All module names, function names, and public APIs use consistent English naming while preserving Portuguese field names from the original BrasilAPI responses in documentation for reference
-
 ### 🚀 Complete API Coverage
 
 Implement all remaining BrasilAPI endpoints to provide comprehensive access to Brazilian data:
 
-### 📚 Enhanced Documentation
-
-- Complete API documentation with Portuguese field references
-- Comprehensive examples for all endpoints
-
 ### Extras
 
-- Add validation and formatting for CNPJ and CPF using the [`brcpfcnpj`](https://hex.pm/packages/brcpfcnpj) package (if available and enabled in the configuration). Otherwise, fall back to our custom lightweight implementation.
 - Implement changelog for tracking changes and versions
 - Implement CI/CD pipeline for automated testing
 

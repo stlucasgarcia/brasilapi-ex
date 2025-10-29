@@ -40,6 +40,15 @@ defmodule Brasilapi do
       # Get book information by ISBN
       {:ok, book} = Brasilapi.get_book("9788545702870")
 
+      # Get all NCM codes
+      {:ok, ncms} = Brasilapi.get_ncms()
+
+      # Search NCM codes
+      {:ok, ncms} = Brasilapi.search_ncms("xampu")
+
+      # Get specific NCM by code
+      {:ok, ncm} = Brasilapi.get_ncm_by_code("33051000")
+
       # Get PIX participants
       {:ok, participants} = Brasilapi.get_pix_participants()
 
@@ -63,6 +72,7 @@ defmodule Brasilapi do
     Exchange,
     Holidays,
     Isbn,
+    Ncm,
     Pix,
     Rates,
     RegistroBr
@@ -171,6 +181,32 @@ defmodule Brasilapi do
     https://brasilapi.com.br/docs#tag/ISBN/paths/~1isbn~1v1~1%7Bisbn%7D/get
   """
   defdelegate get_book(isbn, opts \\ []), to: Isbn
+
+  # NCM
+
+  @doc """
+  Get all NCM (Nomenclatura Comum do Mercosul) codes.
+
+  ## API Reference
+    https://brasilapi.com.br/docs#tag/NCM/paths/~1ncm~1v1/get
+  """
+  defdelegate get_ncms(), to: Ncm
+
+  @doc """
+  Search NCM codes using a code or description keyword.
+
+  ## API Reference
+    https://brasilapi.com.br/docs#tag/NCM/paths/~1ncm~1v1?search=%7Bcode%7D/get
+  """
+  defdelegate search_ncms(query), to: Ncm
+
+  @doc """
+  Get detailed information for a specific NCM code.
+
+  ## API Reference
+    https://brasilapi.com.br/docs#tag/NCM/paths/~1ncm~1v1~1%7Bcode%7D/get
+  """
+  defdelegate get_ncm_by_code(code), to: Ncm
 
   # PIX
 
