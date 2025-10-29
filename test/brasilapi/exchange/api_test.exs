@@ -4,26 +4,10 @@ defmodule Brasilapi.Exchange.APITest do
   alias Brasilapi.Exchange.API
   alias Brasilapi.Exchange.Currency
   alias Brasilapi.Exchange.DailyExchangeRate
+  alias Brasilapi.BypassHelpers
 
   setup do
-    # Store original base_url to restore later
-    original_base_url = Application.get_env(:brasilapi, :base_url)
-
-    bypass = Bypass.open()
-    base_url = "http://localhost:#{bypass.port}/api"
-
-    # Override the base URL for testing
-    Application.put_env(:brasilapi, :base_url, base_url)
-
-    on_exit(fn ->
-      if original_base_url do
-        Application.put_env(:brasilapi, :base_url, original_base_url)
-      else
-        Application.delete_env(:brasilapi, :base_url)
-      end
-    end)
-
-    {:ok, bypass: bypass, base_url: base_url}
+    BypassHelpers.setup_bypass_for_base_url()
   end
 
   describe "get_currencies/0" do

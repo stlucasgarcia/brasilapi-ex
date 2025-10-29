@@ -2,24 +2,10 @@ defmodule Brasilapi.Cep.APITest do
   use ExUnit.Case, async: false
 
   alias Brasilapi.Cep.{API, Address}
+  alias Brasilapi.BypassHelpers
 
   setup do
-    original_base_url = Application.get_env(:brasilapi, :base_url)
-
-    bypass = Bypass.open()
-    base_url = "http://localhost:#{bypass.port}/api"
-
-    Application.put_env(:brasilapi, :base_url, base_url)
-
-    on_exit(fn ->
-      if original_base_url do
-        Application.put_env(:brasilapi, :base_url, original_base_url)
-      else
-        Application.delete_env(:brasilapi, :base_url)
-      end
-    end)
-
-    {:ok, bypass: bypass, base_url: base_url}
+    BypassHelpers.setup_bypass_for_base_url()
   end
 
   describe "get_by_cep/1" do
