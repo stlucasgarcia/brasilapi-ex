@@ -9,7 +9,7 @@ Brasil API lookup library for Elixir with an easy-to-use API for brazilian data 
 
 - [x] **Bancos**
 - [x] **Câmbio**
-- [ ] **CEP**
+- [x] **CEP**
 - [x] **CEP V2**
 - [x] **CNPJ**
 - [x] **Corretoras**
@@ -102,10 +102,11 @@ Then run:
 {:error, %{message: "Currency must be a string and date must be a valid date"}} = Brasilapi.get_exchange_rate(123, "2025-02-13")
 ```
 
-### CEP V2 (Postal Codes)
+### CEP (Postal Codes)
 
 ```elixir
-# Find address by CEP (postal code) - supports multiple providers with fallback
+# Find address by CEP (postal code)
+# By default uses v2 endpoint which includes geolocation data and multiple providers with fallback
 {:ok, address} = Brasilapi.get_cep("89010025")
 # address =>
 # %Brasilapi.Cep.Address{
@@ -117,6 +118,22 @@ Then run:
 #   service: "viacep",
 #   location: %{type: "Point", coordinates: %{}}
 # }
+
+# Use v1 endpoint (without geolocation data)
+{:ok, address} = Brasilapi.get_cep("89010025", version: :v1)
+# address =>
+# %Brasilapi.Cep.Address{
+#   cep: "89010025",
+#   state: "SC",
+#   city: "Blumenau",
+#   neighborhood: "Centro",
+#   street: "Rua Doutor Luiz de Freitas Melro",
+#   service: "open-cep",
+#   location: nil
+# }
+
+# Explicitly use v2 endpoint
+{:ok, address} = Brasilapi.get_cep("89010025", version: :v2)
 
 # CEP can be provided as string or integer, with or without formatting
 {:ok, address} = Brasilapi.get_cep("89010-025")  # formatted

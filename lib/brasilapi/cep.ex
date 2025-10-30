@@ -8,9 +8,11 @@ defmodule Brasilapi.Cep do
   alias Brasilapi.Cep.API
 
   @doc """
-  Fetches information about a CEP using the v2 endpoint with multiple providers.
+  Fetches information about a CEP.
 
-  Delegates to `Brasilapi.Cep.API.get_by_cep/1`.
+  By default uses the v2 endpoint. You can specify `:v1` or `:v2` using the version option.
+
+  Delegates to `Brasilapi.Cep.API.get_by_cep/2`.
   """
-  defdelegate get_by_cep(cep), to: API
+  def get_by_cep(cep, opts \\ []), do: API.get_by_cep(cep, opts)
 end

@@ -153,4 +153,135 @@ defmodule Brasilapi.Cep.APITest do
                API.get_by_cep("89010025")
     end
   end
+
+  describe "get_by_cep/2 with version option" do
+    test "fetches CEP data using v1 endpoint", %{bypass: bypass} do
+      response_body = %{
+        "cep" => "89010025",
+        "state" => "SC",
+        "city" => "Blumenau",
+        "neighborhood" => "Centro",
+        "street" => "Rua Doutor Luiz de Freitas Melro",
+        "service" => "open-cep"
+      }
+
+      Bypass.expect(bypass, "GET", "/api/cep/v1/89010025", fn conn ->
+        conn
+        |> Plug.Conn.put_resp_header("content-type", "application/json")
+        |> Plug.Conn.resp(200, Jason.encode!(response_body))
+      end)
+
+      assert {:ok, %Address{} = cep_data} = API.get_by_cep("89010025", version: :v1)
+      assert cep_data.cep == "89010025"
+      assert cep_data.state == "SC"
+      assert cep_data.city == "Blumenau"
+      assert cep_data.neighborhood == "Centro"
+      assert cep_data.street == "Rua Doutor Luiz de Freitas Melro"
+      assert cep_data.service == "open-cep"
+      assert cep_data.location == nil
+    end
+
+    test "fetches CEP data using v1 endpoint with integer CEP", %{bypass: bypass} do
+      response_body = %{
+        "cep" => "89010025",
+        "state" => "SC",
+        "city" => "Blumenau",
+        "neighborhood" => "Centro",
+        "street" => "Rua Doutor Luiz de Freitas Melro",
+        "service" => "open-cep"
+      }
+
+      Bypass.expect(bypass, "GET", "/api/cep/v1/89010025", fn conn ->
+        conn
+        |> Plug.Conn.put_resp_header("content-type", "application/json")
+        |> Plug.Conn.resp(200, Jason.encode!(response_body))
+      end)
+
+      assert {:ok, %Address{} = cep_data} = API.get_by_cep(89_010_025, version: :v1)
+      assert cep_data.cep == "89010025"
+      assert cep_data.service == "open-cep"
+    end
+
+    test "defaults to v2 endpoint when no version specified", %{bypass: bypass} do
+      response_body = %{
+        "cep" => "89010025",
+        "state" => "SC",
+        "city" => "Blumenau",
+        "neighborhood" => "Centro",
+        "street" => "Rua Doutor Luiz de Freitas Melro",
+        "service" => "viacep",
+        "location" => %{
+          "type" => "Point",
+          "coordinates" => %{}
+        }
+      }
+
+      Bypass.expect(bypass, "GET", "/api/cep/v2/89010025", fn conn ->
+        conn
+        |> Plug.Conn.put_resp_header("content-type", "application/json")
+        |> Plug.Conn.resp(200, Jason.encode!(response_body))
+      end)
+
+      assert {:ok, %Address{} = cep_data} = API.get_by_cep("89010025", [])
+      assert cep_data.location == %{type: "Point", coordinates: %{}}
+    end
+
+    test "uses v2 endpoint when explicitly requested", %{bypass: bypass} do
+      response_body = %{
+        "cep" => "89010025",
+        "state" => "SC",
+        "city" => "Blumenau",
+        "neighborhood" => "Centro",
+        "street" => "Rua Doutor Luiz de Freitas Melro",
+        "service" => "viacep",
+        "location" => %{
+          "type" => "Point",
+          "coordinates" => %{}
+        }
+      }
+
+      Bypass.expect(bypass, "GET", "/api/cep/v2/89010025", fn conn ->
+        conn
+        |> Plug.Conn.put_resp_header("content-type", "application/json")
+        |> Plug.Conn.resp(200, Jason.encode!(response_body))
+      end)
+
+      assert {:ok, %Address{} = cep_data} = API.get_by_cep("89010025", version: :v2)
+      assert cep_data.location == %{type: "Point", coordinates: %{}}
+    end
+
+    test "handles invalid version by defaulting to v2", %{bypass: bypass} do
+      response_body = %{
+        "cep" => "89010025",
+        "state" => "SC",
+        "city" => "Blumenau",
+        "neighborhood" => "Centro",
+        "street" => "Rua Doutor Luiz de Freitas Melro",
+        "service" => "viacep",
+        "location" => %{
+          "type" => "Point",
+          "coordinates" => %{}
+        }
+      }
+
+      Bypass.expect(bypass, "GET", "/api/cep/v2/89010025", fn conn ->
+        conn
+        |> Plug.Conn.put_resp_header("content-type", "application/json")
+        |> Plug.Conn.resp(200, Jason.encode!(response_body))
+      end)
+
+      assert {:ok, %Address{}} = API.get_by_cep("89010025", version: :v3)
+    end
+
+    test "returns error when v1 API returns 404", %{bypass: bypass} do
+      Bypass.expect(bypass, "GET", "/api/cep/v1/00000000", fn conn ->
+        conn
+        |> Plug.Conn.put_resp_header("content-type", "application/json")
+        |> Plug.Conn.resp(404, Jason.encode!(%{"error" => "CEP not found"}))
+      end)
+
+      assert {:error, %{status: 404, message: "Not found"}} =
+               API.get_by_cep("00000000", version: :v1)
+    end
+  end
 end

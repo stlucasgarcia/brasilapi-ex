@@ -162,15 +162,22 @@ defmodule Brasilapi do
   """
   defdelegate get_exchange_rate(currency, date), to: Exchange
 
-  # CEP V2
+  # CEP
 
   @doc """
-  Get CEP (postal code) information using the v2 endpoint.
+  Get CEP (postal code) information.
+
+  By default uses the v2 endpoint which includes geolocation data.
+  You can use the v1 endpoint by passing `version: :v1` in the options.
+
+  ## Options
+    * `:version` - API version to use (`:v1` or `:v2`). Defaults to `:v2`.
 
   ## API Reference
-    https://brasilapi.com.br/docs#tag/CEP-V2/paths/~1cep~1v2~1%7Bcep%7D/get
+    * V2: https://brasilapi.com.br/docs#tag/CEP-V2/paths/~1cep~1v2~1%7Bcep%7D/get
+    * V1: https://brasilapi.com.br/docs#tag/CEP/paths/~1cep~1v1~1%7Bcep%7D/get
   """
-  defdelegate get_cep(cep), to: Cep, as: :get_by_cep
+  defdelegate get_cep(cep, opts \\ []), to: Cep, as: :get_by_cep
 
   # CNPJ
 
