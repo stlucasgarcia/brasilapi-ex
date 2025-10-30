@@ -169,7 +169,8 @@ defmodule Brasilapi.Banks.APITest do
     test "returns error on network failure", %{bypass: bypass} do
       Bypass.down(bypass)
 
-      assert {:error, %{reason: :econnrefused, message: "Network error"}} = API.get_bank_by_code(1)
+      assert {:error, %{reason: :econnrefused, message: "Network error"}} =
+               API.get_bank_by_code(1)
     end
 
     test "accepts string code", %{bypass: bypass} do

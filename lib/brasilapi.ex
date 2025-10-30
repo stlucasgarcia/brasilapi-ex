@@ -82,6 +82,30 @@ defmodule Brasilapi do
       # Get a specific tax rate
       {:ok, rate} = Brasilapi.get_rate_by_acronym("CDI")
 
+      # List all CPTEC cities
+      {:ok, all_cities} = Brasilapi.list_cptec_cities()
+
+      # Search for cities in CPTEC
+      {:ok, cities} = Brasilapi.search_cptec_cities("São Paulo")
+
+      # Get current weather for all capitals
+      {:ok, weather} = Brasilapi.get_capitals_weather()
+
+      # Get airport weather
+      {:ok, airport_weather} = Brasilapi.get_airport_weather("SBGR")
+
+      # Get city weather forecast
+      {:ok, forecast} = Brasilapi.get_city_forecast(244)
+
+      # Get city weather forecast for 6 days
+      {:ok, forecast} = Brasilapi.get_city_forecast(244, 6)
+
+      # Get ocean forecast
+      {:ok, ocean_forecast} = Brasilapi.get_ocean_forecast(241)
+
+      # Get ocean forecast for 3 days
+      {:ok, ocean_forecast} = Brasilapi.get_ocean_forecast(241, 3)
+
   """
 
   alias Brasilapi.{
@@ -89,6 +113,7 @@ defmodule Brasilapi do
     Brokers,
     Cep,
     Cnpj,
+    Cptec,
     Ddd,
     Exchange,
     Fipe,
@@ -156,6 +181,79 @@ defmodule Brasilapi do
     https://brasilapi.com.br/docs#tag/CNPJ/paths/~1cnpj~1v1~1%7Bcnpj%7D/get
   """
   defdelegate get_cnpj(cnpj), to: Cnpj, as: :get_by_cnpj
+
+  # CPTEC
+
+  @doc """
+  List all cities available in CPTEC services.
+
+  Returns a complete listing of all cities with their CPTEC codes.
+  The city code (id) is used in other CPTEC endpoints for weather and ocean forecasts.
+
+  Note: The CPTEC web service can be unstable. If you don't find a specific city
+  in the complete listing, try searching by part of its name using `search_cptec_cities/1`.
+
+  ## API Reference
+    https://brasilapi.com.br/docs#tag/CPTEC/operation/listcities(/cptec/v1/cidade)
+  """
+  defdelegate list_cptec_cities(), to: Cptec, as: :list_cities
+
+  @doc """
+  Search for cities by name to get their CPTEC codes.
+
+  Returns a list of cities matching the search term. The city code (id) is used
+  in other CPTEC endpoints for weather and ocean forecasts.
+
+  ## API Reference
+    https://brasilapi.com.br/docs#tag/CPTEC/operation/searchcities(/cptec/v1/cidade/:cityName)
+  """
+  defdelegate search_cptec_cities(city_name), to: Cptec, as: :search_cities
+
+  @doc """
+  Get current weather conditions for all Brazilian state capitals.
+
+  Returns meteorological data from airport weather stations in each capital city.
+
+  ## API Reference
+    https://brasilapi.com.br/docs#tag/CPTEC/operation/Condi%C3%A7%C3%B5esatuaisnascapitais(/cptec/v1/clima/capital)
+  """
+  defdelegate get_capitals_weather(), to: Cptec
+
+  @doc """
+  Get current weather conditions at a specific airport by ICAO code.
+
+  The ICAO code must be 4 uppercase letters (e.g., "SBGR", "SBAR").
+
+  ## API Reference
+    https://brasilapi.com.br/docs#tag/CPTEC/operation/airportcurrentcondicao(/cptec/v1/clima/aeroporto/:icaoCode)
+  """
+  defdelegate get_airport_weather(icao_code), to: Cptec
+
+  @doc """
+  Get weather forecast for a city.
+
+  Supports both 1-day and multi-day forecasts (up to 6 days).
+  Use the city code obtained from `search_cptec_cities/1`.
+
+  ## API Reference
+    https://brasilapi.com.br/docs#tag/CPTEC/operation/climapredictionwithoutdays(/cptec/v1/clima/previsao/:cityCode)
+    https://brasilapi.com.br/docs#tag/CPTEC/operation/upto14daysprediction(/cptec/v1/clima/previsao/:cityCode/:days)
+  """
+  defdelegate get_city_forecast(city_code), to: Cptec
+  defdelegate get_city_forecast(city_code, days), to: Cptec
+
+  @doc """
+  Get ocean/wave forecast for a coastal city.
+
+  Supports both 1-day and multi-day forecasts (up to 6 days).
+  Use the city code obtained from `search_cptec_cities/1`.
+
+  ## API Reference
+    https://brasilapi.com.br/docs#tag/CPTEC/operation/ondaspredictionwithoutdays(/cptec/v1/ondas/:cityCode)
+    https://brasilapi.com.br/docs#tag/CPTEC/operation/ondaspredictionupto6days(/cptec/v1/ondas/:cityCode/:days)
+  """
+  defdelegate get_ocean_forecast(city_code), to: Cptec
+  defdelegate get_ocean_forecast(city_code, days), to: Cptec
 
   # Corretoras (Brokers)
 

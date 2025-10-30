@@ -81,7 +81,10 @@ defmodule Brasilapi.Fipe.APITest do
 
     test "returns error for invalid vehicle type" do
       assert {:error,
-              %{message: "Invalid vehicle type: invalid. Valid types are: caminhoes, carros, motos"}} =
+              %{
+                message:
+                  "Invalid vehicle type: invalid. Valid types are: caminhoes, carros, motos"
+              }} =
                API.get_brands("invalid")
     end
 
@@ -173,13 +176,16 @@ defmodule Brasilapi.Fipe.APITest do
     end
 
     test "returns error for invalid FIPE code format" do
-      assert {:error, %{message: "Invalid FIPE code format. Must be in format XXXXXX-X (e.g., 001004-9)"}} =
+      assert {:error,
+              %{message: "Invalid FIPE code format. Must be in format XXXXXX-X (e.g., 001004-9)"}} =
                API.get_price("invalid")
 
-      assert {:error, %{message: "Invalid FIPE code format. Must be in format XXXXXX-X (e.g., 001004-9)"}} =
+      assert {:error,
+              %{message: "Invalid FIPE code format. Must be in format XXXXXX-X (e.g., 001004-9)"}} =
                API.get_price("123456")
 
-      assert {:error, %{message: "Invalid FIPE code format. Must be in format XXXXXX-X (e.g., 001004-9)"}} =
+      assert {:error,
+              %{message: "Invalid FIPE code format. Must be in format XXXXXX-X (e.g., 001004-9)"}} =
                API.get_price("1234567-8")
     end
 
@@ -350,7 +356,10 @@ defmodule Brasilapi.Fipe.APITest do
 
     test "returns error for invalid vehicle type" do
       assert {:error,
-              %{message: "Invalid vehicle type: invalid. Valid types are: caminhoes, carros, motos"}} =
+              %{
+                message:
+                  "Invalid vehicle type: invalid. Valid types are: caminhoes, carros, motos"
+              }} =
                API.get_vehicles("invalid", 21)
     end
 

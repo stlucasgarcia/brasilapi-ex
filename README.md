@@ -13,7 +13,7 @@ Brasil API lookup library for Elixir with an easy-to-use API for brazilian data 
 - [x] **CEP V2**
 - [x] **CNPJ**
 - [x] **Corretoras**
-- [ ] **CPTEC**
+- [x] **CPTEC**
 - [x] **DDD**
 - [x] **Feriados Nacionais**
 - [x] **FIPE**
@@ -222,6 +222,134 @@ Then run:
 {:error, %{status: 500, message: "Internal server error"}} = Brasilapi.get_brokers()  # when API is down
 {:error, %{status: 404, message: "Não foi encontrado este CNPJ na listagem da CVM."}} = Brasilapi.get_broker_by_cnpj("00000000000000")
 {:error, %{message: "Invalid CNPJ format. Must be 14 digits."}} = Brasilapi.get_broker_by_cnpj("123")
+```
+
+### CPTEC (Weather and Ocean Forecasts)
+
+```elixir
+# List all cities available in CPTEC services
+{:ok, all_cities} = Brasilapi.list_cptec_cities()
+# all_cities =>
+# [%Brasilapi.Cptec.City{nome: "São Paulo", estado: "SP", id: 244},
+#  %Brasilapi.Cptec.City{nome: "Rio de Janeiro", estado: "RJ", id: 241},
+#  %Brasilapi.Cptec.City{nome: "Belo Horizonte", estado: "MG", id: 220},
+#  # ... more cities
+# ]
+
+# Search for cities by name
+{:ok, cities} = Brasilapi.search_cptec_cities("São Paulo")
+# cities =>
+# [%Brasilapi.Cptec.City{nome: "São Paulo", estado: "SP", id: 244},
+#  %Brasilapi.Cptec.City{nome: "São Paulo do Potengi", estado: "RN", id: 5100},
+#  # ... more matching cities
+# ]
+
+# Get current weather conditions for all state capitals
+{:ok, weather} = Brasilapi.get_capitals_weather()
+# weather =>
+# [%Brasilapi.Cptec.AirportConditions{
+#    codigo_icao: "SBGR",
+#    atualizado_em: "2021-01-27T15:00:00.974Z",
+#    pressao_atmosferica: "1014",
+#    visibilidade: "9000",
+#    vento: 29,
+#    direcao_vento: 90,
+#    umidade: 74,
+#    condicao: "ps",
+#    condicao_desc: "Predomínio de Sol",
+#    temp: 28
+#  },
+#  # ... more capitals
+# ]
+
+# Get current weather at a specific airport by ICAO code
+{:ok, airport_weather} = Brasilapi.get_airport_weather("SBGR")
+# airport_weather =>
+# %Brasilapi.Cptec.AirportConditions{
+#   codigo_icao: "SBGR",
+#   atualizado_em: "2021-01-27T15:00:00.974Z",
+#   pressao_atmosferica: "1014",
+#   visibilidade: "9000",
+#   vento: 29,
+#   direcao_vento: 90,
+#   umidade: 74,
+#   condicao: "ps",
+#   condicao_desc: "Predomínio de Sol",
+#   temp: 28
+# }
+
+# ICAO code is case-insensitive and auto-normalized to uppercase
+{:ok, airport_weather} = Brasilapi.get_airport_weather("sbgr")  # Works fine
+
+# Get weather forecast for a city (1 day)
+{:ok, forecast} = Brasilapi.get_city_forecast(244)  # São Paulo city code
+# forecast =>
+# %Brasilapi.Cptec.CityForecast{
+#   cidade: "São Paulo",
+#   estado: "SP",
+#   atualizado_em: "2021-01-27",
+#   clima: [
+#     %Brasilapi.Cptec.ClimateData{
+#       data: "2021-01-27",
+#       condicao: "ps",
+#       min: 18,
+#       max: 28,
+#       indice_uv: 11.5,
+#       condicao_desc: "Predomínio de Sol"
+#     }
+#   ]
+# }
+
+# Get weather forecast for multiple days (up to 6 days)
+{:ok, forecast} = Brasilapi.get_city_forecast(244, 3)
+# forecast =>
+# %Brasilapi.Cptec.CityForecast{
+#   cidade: "São Paulo",
+#   estado: "SP",
+#   atualizado_em: "2021-01-27",
+#   clima: [
+#     %Brasilapi.Cptec.ClimateData{data: "2021-01-27", min: 18, max: 28, ...},
+#     %Brasilapi.Cptec.ClimateData{data: "2021-01-28", min: 19, max: 29, ...},
+#     %Brasilapi.Cptec.ClimateData{data: "2021-01-29", min: 17, max: 25, ...}
+#   ]
+# }
+
+# Get ocean/wave forecast for a coastal city (1 day)
+{:ok, ocean_forecast} = Brasilapi.get_ocean_forecast(241)  # Rio de Janeiro city code
+# ocean_forecast =>
+# %Brasilapi.Cptec.OceanForecast{
+#   cidade: "Rio de Janeiro",
+#   estado: "RJ",
+#   atualizado_em: "2021-01-27",
+#   ondas: [
+#     %Brasilapi.Cptec.DailyWaves{
+#       data: "2021-01-27",
+#       ondas_data: [
+#         %Brasilapi.Cptec.HourlyWaves{
+#           vento: 15.5,
+#           direcao_vento: "S",
+#           direcao_vento_desc: "Sul",
+#           altura_onda: 1.2,
+#           direcao_onda: "SE",
+#           direcao_onda_desc: "Sudeste",
+#           agitacao: "Fraco",
+#           hora: "00h Z"
+#         },
+#         # ... more hourly data
+#       ]
+#     }
+#   ]
+# }
+
+# Get ocean forecast for multiple days (up to 6 days)
+{:ok, ocean_forecast} = Brasilapi.get_ocean_forecast(241, 3)
+# Returns forecast for 3 days with hourly wave conditions
+
+# Error handling
+{:error, %{status: 404, message: "Not found"}} = Brasilapi.search_cptec_cities("InvalidCity")
+{:error, %{message: "ICAO code must be exactly 4 uppercase letters"}} = Brasilapi.get_airport_weather("SB")
+{:error, %{message: "Days parameter must be between 1 and 6"}} = Brasilapi.get_city_forecast(244, 7)
+{:error, %{message: "Days parameter must be between 1 and 6"}} = Brasilapi.get_ocean_forecast(241, 10)
 ```
 
 ### DDD (Area Codes)
@@ -670,6 +798,23 @@ For better type safety and developer experience, BrasilAPI provides struct defin
 {:ok, %Brasilapi.Cnpj.Company{} = company} = Brasilapi.get_cnpj("11000000000197")
 # company => %Brasilapi.Cnpj.Company{cnpj: "11000000000197", razao_social: "ACME INC", nome_fantasia: "ACME CORPORATION", uf: "SP", municipio: "SAO PAULO", situacao_cadastral: 2, descricao_situacao_cadastral: "ATIVA", ...}
 
+# CPTEC city struct
+{:ok, cities} = Brasilapi.search_cptec_cities("São Paulo")
+[%Brasilapi.Cptec.City{} = city | _] = cities
+# city => %Brasilapi.Cptec.City{nome: "São Paulo", estado: "SP", id: 244}
+
+# CPTEC airport conditions struct
+{:ok, %Brasilapi.Cptec.AirportConditions{} = weather} = Brasilapi.get_airport_weather("SBGR")
+# weather => %Brasilapi.Cptec.AirportConditions{codigo_icao: "SBGR", temp: 28, umidade: 74, vento: 29, condicao_desc: "Predomínio de Sol", ...}
+
+# CPTEC city forecast struct
+{:ok, %Brasilapi.Cptec.CityForecast{} = forecast} = Brasilapi.get_city_forecast(244, 3)
+# forecast => %Brasilapi.Cptec.CityForecast{cidade: "São Paulo", estado: "SP", clima: [%Brasilapi.Cptec.ClimateData{min: 18, max: 28, indice_uv: 11.5, ...}, ...]}
+
+# CPTEC ocean forecast struct
+{:ok, %Brasilapi.Cptec.OceanForecast{} = ocean} = Brasilapi.get_ocean_forecast(241)
+# ocean => %Brasilapi.Cptec.OceanForecast{cidade: "Rio de Janeiro", estado: "RJ", ondas: [%Brasilapi.Cptec.DailyWaves{data: "2021-01-27", ondas_data: [%Brasilapi.Cptec.HourlyWaves{altura_onda: 1.2, ...}]}]}
+
 # Book struct
 {:ok, %Brasilapi.Isbn.Book{} = book} = Brasilapi.get_book("9788545702870")
 # book => %Brasilapi.Isbn.Book{isbn: "9788545702870", title: "Akira", authors: ["KATSUHIRO OTOMO", ...], publisher: "Japorama Editora e Comunicação", year: 2017, ...}
@@ -712,6 +857,13 @@ For better type safety and developer experience, BrasilAPI provides struct defin
 - `Brasilapi.Brokers.Broker` - CVM-registered brokerage firm information with comprehensive registration and financial data
 - `Brasilapi.Cep.Address` - CEP/Address information with location data
 - `Brasilapi.Cnpj.Company` - Company information with comprehensive business data
+- `Brasilapi.Cptec.City` - CPTEC city information with name, state, and ID code
+- `Brasilapi.Cptec.AirportConditions` - Current weather conditions at airports/capitals with temperature, wind, humidity, and pressure
+- `Brasilapi.Cptec.CityForecast` - Weather forecast wrapper with city information and climate data array
+- `Brasilapi.Cptec.ClimateData` - Daily climate forecast with min/max temperature, UV index, and weather conditions
+- `Brasilapi.Cptec.OceanForecast` - Ocean forecast wrapper with city information and wave data array
+- `Brasilapi.Cptec.DailyWaves` - Daily wave data container with hourly wave conditions
+- `Brasilapi.Cptec.HourlyWaves` - Hourly wave conditions with wind speed/direction, wave height/direction, and sea state
 - `Brasilapi.Ddd.Info` - DDD/Area code information with state and cities
 - `Brasilapi.Holidays.Holiday` - National holiday information with date, name, and type
 - `Brasilapi.Fipe.Brand` - FIPE vehicle brand information with name and code

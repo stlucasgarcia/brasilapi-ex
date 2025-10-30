@@ -126,7 +126,9 @@ defmodule Brasilapi.Ibge.API do
   """
   @spec get_municipalities(String.t(), keyword()) ::
           {:ok, [Municipality.t()]} | {:error, map()}
-  def get_municipalities(uf, opts \\ []) when is_binary(uf) do
+  def get_municipalities(uf, opts \\ [])
+
+  def get_municipalities(uf, opts) when is_binary(uf) do
     with {:ok, providers} <- validate_providers(opts[:providers]),
          url <- build_municipalities_url(uf, providers),
          {:ok, municipalities} when is_list(municipalities) <- Client.get(url) do
