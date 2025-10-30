@@ -12,14 +12,14 @@ defmodule Brasilapi.Ncm do
   @doc """
   Fetches all NCM codes.
 
-  Delegates to `Brasilapi.Ncm.API.get_all/0`.
+  Delegates to `Brasilapi.Ncm.API.get_ncms/0`.
   """
   defdelegate get_ncms(), to: API
 
   @doc """
   Searches for NCM codes using a code or description keyword.
 
-  Delegates to `Brasilapi.Ncm.API.search/1`.
+  Delegates to `Brasilapi.Ncm.API.search_ncms/1`.
   """
   defdelegate search_ncms(query), to: API
 
