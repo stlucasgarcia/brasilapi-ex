@@ -31,7 +31,7 @@ Add `brasilapi` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:brasilapi, "~> 0.1.5"}
+    {:brasilapi, "~> 1.0"}
   ]
 end
 ```
@@ -960,15 +960,7 @@ config :brasilapi,
 - `retry_attempts` - Number of retry attempts for failed requests (default: 3)
 - `req_options` - Additional options passed to the Req HTTP client (default: [])
 
-## Roadmap to v1.0.0
-
-I am working towards a stable 1.0.0 release with improved consistency and comprehensive API coverage. Here's what's planned:
-
-### 🚀 Complete API Coverage
-
-Implement all remaining BrasilAPI endpoints to provide comprehensive access to Brazilian data:
-
-### Extras
+### TODOs
 
 - Implement changelog for tracking changes and versions
 - Implement CI/CD pipeline for automated testing
