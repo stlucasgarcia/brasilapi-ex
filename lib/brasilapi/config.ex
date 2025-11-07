@@ -6,6 +6,7 @@ defmodule Brasilapi.Config do
   @default_base_url "https://brasilapi.com.br/api"
   @default_timeout 30_000
   @default_retry_attempts 3
+  @env (if Code.ensure_loaded?(Mix), do: Mix.env(), else: :prod)
 
   @doc """
   Returns the base URL for BrasilAPI.
@@ -42,7 +43,7 @@ defmodule Brasilapi.Config do
   """
   @spec req_options() :: keyword()
   def req_options do
-    if Mix.env() == :test do
+    if @env == :test do
       Application.get_env(:brasilapi, :req_options, []) ++ [retry: false, max_retries: 0]
     else
       Application.get_env(:brasilapi, :req_options, [])

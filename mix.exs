@@ -13,7 +13,7 @@ defmodule Brasilapi.MixProject do
       source_url: "https://github.com/stlucasgarcia/brasilapi-ex",
       homepage_url: "https://github.com/stlucasgarcia/brasilapi-ex",
       deps: deps(),
-      docs: [extras: ["README.md"]],
+      docs: [extras: ["README.md", "CHANGELOG.md"]],
       elixirc_paths: elixirc_paths(Mix.env())
     ]
   end
