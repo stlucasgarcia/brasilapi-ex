@@ -7,7 +7,7 @@ defmodule Brasilapi.Holidays.API do
   includes fixed holidays.
   """
 
-  alias Brasilapi.{Client}
+  alias Brasilapi.Client
   alias Brasilapi.Holidays.Holiday
 
   @doc """
@@ -42,10 +42,7 @@ defmodule Brasilapi.Holidays.API do
   @spec get_by_year(String.t() | integer()) :: {:ok, [Holiday.t()]} | {:error, map()}
   def get_by_year(year) when is_binary(year) or is_integer(year) do
     with {:ok, normalized_year} <- validate_and_normalize_year(year),
-         {:ok, holidays_data} when is_list(holidays_data) <-
-           Client.get("/feriados/v1/#{normalized_year}") do
-      {:ok, Enum.map(holidays_data, &Holiday.from_map/1)}
-    end
+         do: Client.get_list("/feriados/v1/#{normalized_year}", &Holiday.from_map/1)
   end
 
   def get_by_year(_year) do

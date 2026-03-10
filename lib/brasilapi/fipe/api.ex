@@ -47,18 +47,13 @@ defmodule Brasilapi.Fipe.API do
 
   def get_brands(vehicle_type, opts) when is_nil(vehicle_type) or vehicle_type == "" do
     url = build_url("/fipe/marcas/v1", opts)
-
-    with {:ok, brands} when is_list(brands) <- Client.get(url) do
-      {:ok, Enum.map(brands, &Brand.from_map/1)}
-    end
+    Client.get_list(url, &Brand.from_map/1)
   end
 
   def get_brands(vehicle_type, opts) when is_binary(vehicle_type) do
     with {:ok, _} <- validate_vehicle_type(vehicle_type),
          url <- build_url("/fipe/marcas/v1/#{vehicle_type}", opts),
-         {:ok, brands} when is_list(brands) <- Client.get(url) do
-      {:ok, Enum.map(brands, &Brand.from_map/1)}
-    end
+         do: Client.get_list(url, &Brand.from_map/1)
   end
 
   def get_brands(_vehicle_type, _opts) do
@@ -106,9 +101,7 @@ defmodule Brasilapi.Fipe.API do
   def get_price(fipe_code, opts) when is_binary(fipe_code) do
     with {:ok, _} <- validate_fipe_code(fipe_code),
          url <- build_url("/fipe/preco/v1/#{fipe_code}", opts),
-         {:ok, prices} when is_list(prices) <- Client.get(url) do
-      {:ok, Enum.map(prices, &Price.from_map/1)}
-    end
+         do: Client.get_list(url, &Price.from_map/1)
   end
 
   def get_price(_fipe_code, _opts) do
@@ -136,9 +129,7 @@ defmodule Brasilapi.Fipe.API do
   """
   @spec get_reference_tables() :: {:ok, [ReferenceTable.t()]} | {:error, map()}
   def get_reference_tables do
-    with {:ok, tables} when is_list(tables) <- Client.get("/fipe/tabelas/v1") do
-      {:ok, Enum.map(tables, &ReferenceTable.from_map/1)}
-    end
+    Client.get_list("/fipe/tabelas/v1", &ReferenceTable.from_map/1)
   end
 
   @doc """
@@ -179,9 +170,7 @@ defmodule Brasilapi.Fipe.API do
 
     with {:ok, _} <- validate_vehicle_type(vehicle_type),
          url <- build_url("/fipe/veiculos/v1/#{vehicle_type}/#{normalized_brand_code}", opts),
-         {:ok, vehicles} when is_list(vehicles) <- Client.get(url) do
-      {:ok, Enum.map(vehicles, &Vehicle.from_map/1)}
-    end
+         do: Client.get_list(url, &Vehicle.from_map/1)
   end
 
   def get_vehicles(_vehicle_type, _brand_code, _opts) do

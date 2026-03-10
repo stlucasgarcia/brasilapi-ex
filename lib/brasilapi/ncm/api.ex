@@ -6,7 +6,7 @@ defmodule Brasilapi.Ncm.API do
   which is the product classification system used for taxation and foreign trade control.
   """
 
-  alias Brasilapi.{Client}
+  alias Brasilapi.Client
   alias Brasilapi.Ncm.Ncm
 
   @doc """
@@ -36,9 +36,7 @@ defmodule Brasilapi.Ncm.API do
   """
   @spec get_ncms() :: {:ok, [Ncm.t()]} | {:error, map()}
   def get_ncms do
-    with {:ok, ncms} when is_list(ncms) <- Client.get("/ncm/v1") do
-      {:ok, Enum.map(ncms, &Ncm.from_map/1)}
-    end
+    Client.get_list("/ncm/v1", &Ncm.from_map/1)
   end
 
   @doc """
@@ -75,10 +73,7 @@ defmodule Brasilapi.Ncm.API do
   @spec search_ncms(String.t()) :: {:ok, [Ncm.t()]} | {:error, map()}
   def search_ncms(query) when is_binary(query) do
     query_string = URI.encode_query(%{search: query})
-
-    with {:ok, ncms} when is_list(ncms) <- Client.get("/ncm/v1?#{query_string}") do
-      {:ok, Enum.map(ncms, &Ncm.from_map/1)}
-    end
+    Client.get_list("/ncm/v1?#{query_string}", &Ncm.from_map/1)
   end
 
   def search_ncms(_query) do
@@ -120,10 +115,7 @@ defmodule Brasilapi.Ncm.API do
   @spec get_ncm_by_code(String.t() | integer()) :: {:ok, Ncm.t()} | {:error, map()}
   def get_ncm_by_code(code) when is_binary(code) or is_integer(code) do
     normalized_code = normalize_code(code)
-
-    with {:ok, ncm} when is_map(ncm) <- Client.get("/ncm/v1/#{normalized_code}") do
-      {:ok, Ncm.from_map(ncm)}
-    end
+    Client.get_one("/ncm/v1/#{normalized_code}", &Ncm.from_map/1)
   end
 
   def get_ncm_by_code(_code) do

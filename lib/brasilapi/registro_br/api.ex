@@ -30,8 +30,7 @@ defmodule Brasilapi.RegistroBr.API do
   """
   @spec get_domain_info(String.t()) :: {:ok, Domain.t()} | {:error, map()}
   def get_domain_info(domain) when is_binary(domain) do
-    with {:ok, %{} = domain_data} <- Client.get("/registrobr/v1/#{domain}"),
-         do: {:ok, Domain.from_map(domain_data)}
+    Client.get_one("/registrobr/v1/#{domain}", &Domain.from_map/1)
   end
 
   def get_domain_info(_domain) do

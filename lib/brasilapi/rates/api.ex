@@ -24,10 +24,7 @@ defmodule Brasilapi.Rates.API do
   """
   @spec get_rates() :: {:ok, [Rate.t()]} | {:error, map()}
   def get_rates do
-    with {:ok, taxas} when is_list(taxas) <- Client.get("/taxas/v1") do
-      parsed_taxas = Enum.map(taxas, &Rate.from_map/1)
-      {:ok, parsed_taxas}
-    end
+    Client.get_list("/taxas/v1", &Rate.from_map/1)
   end
 
   @doc """
@@ -50,8 +47,7 @@ defmodule Brasilapi.Rates.API do
   """
   @spec get_rates_by_acronym(String.t()) :: {:ok, Rate.t()} | {:error, map()}
   def get_rates_by_acronym(acronym) when is_binary(acronym) do
-    with {:ok, %{} = taxa} <- Client.get("/taxas/v1/#{acronym}"),
-         do: {:ok, Rate.from_map(taxa)}
+    Client.get_one("/taxas/v1/#{acronym}", &Rate.from_map/1)
   end
 
   def get_rates_by_acronym(_acronym) do

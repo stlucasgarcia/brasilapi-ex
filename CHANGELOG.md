@@ -1,5 +1,24 @@
 # Changelog
 
+## [1.0.2] - 2026-03-10
+
+### Added
+
+- Added internal `Brasilapi.Utils.Digits` helper to centralize digit stripping and exact-length normalization for CEP, DDD, CNPJ, and ISBN inputs
+
+### Changed
+
+- Refactored `Brasilapi.Client` to route all HTTP verbs through a single request path and added shared `get_one/3` and `get_list/3` helpers for endpoint modules
+- Simplified multiple API modules by reusing the shared client mapping helpers instead of repeating `Client.get` plus `Enum.map` / `from_map` boilerplate
+
+### Fixed
+
+- `Brasilapi.Config.req_options/0` now returns only configured Req options, while retry behavior is handled separately by `retry_options/0`
+- Removed duplicated input normalization logic in CEP, DDD, CNPJ, and ISBN handling by reusing the shared digits utility
+- Collapsed duplicated `sanitize_and_validate/1` clauses in the CNPJ utility
+- Restored full test suite health after the configuration and client refactor
+- Tests: `mix test` passes with 381 tests and 29 doctests
+
 ## [1.0.1] - 2025-11-07
 
 ### Fixed

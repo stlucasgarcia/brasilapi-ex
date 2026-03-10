@@ -6,8 +6,9 @@ defmodule Brasilapi.Cep.API do
   using v1 or v2 endpoints with multiple providers for fallback.
   """
 
-  alias Brasilapi.{Client}
   alias Brasilapi.Cep.Address
+  alias Brasilapi.Client
+  alias Brasilapi.Utils.Digits
 
   @doc """
   Fetches information about a CEP (postal code).
@@ -61,8 +62,7 @@ defmodule Brasilapi.Cep.API do
     endpoint = get_endpoint(version)
 
     with {:ok, normalized_cep} <- validate_and_normalize_cep(cep),
-         {:ok, %{} = cep_data} <- Client.get("#{endpoint}/#{normalized_cep}"),
-         do: {:ok, Address.from_map(cep_data)}
+         do: Client.get_one("#{endpoint}/#{normalized_cep}", &Address.from_map/1)
   end
 
   def get_by_cep(_cep, _opts) do
@@ -77,26 +77,17 @@ defmodule Brasilapi.Cep.API do
   defp get_endpoint(_), do: "/cep/v2"
 
   @spec validate_and_normalize_cep(String.t() | integer()) ::
-          {:ok, String.t()} | {:error, String.t()}
-  defp validate_and_normalize_cep(cep) when is_integer(cep) do
-    cep
-    |> Integer.to_string()
-    |> String.pad_leading(8, "0")
-    |> validate_and_normalize_cep
-  end
-
-  defp validate_and_normalize_cep(cep) when is_binary(cep) do
-    digits_only = String.replace(cep, ~r/\D/, "")
-
-    cond do
-      digits_only == "" ->
+          {:ok, String.t()} | {:error, map()}
+  defp validate_and_normalize_cep(cep) do
+    case Digits.normalize_exact(cep, 8) do
+      {:error, :empty} ->
         {:error, %{message: "CEP must contain only digits"}}
 
-      byte_size(digits_only) != 8 ->
+      {:error, :invalid_length} ->
         {:error, %{message: "CEP must be exactly 8 digits"}}
 
-      true ->
-        {:ok, digits_only}
+      {:ok, digits} ->
+        {:ok, digits}
     end
   end
 end

@@ -5,7 +5,7 @@ defmodule Brasilapi.Cnpj.API do
   Provides functions to fetch information about Brazilian companies by CNPJ.
   """
 
-  alias Brasilapi.{Client}
+  alias Brasilapi.Client
   alias Brasilapi.Cnpj.Company
   alias Brasilapi.Utils.Cnpj
 
@@ -30,8 +30,6 @@ defmodule Brasilapi.Cnpj.API do
   @spec get_by_cnpj(String.t() | integer()) :: {:ok, Company.t()} | {:error, map()}
   def get_by_cnpj(cnpj) do
     with {:ok, cnpj_string} <- Cnpj.sanitize_and_validate(cnpj),
-         {:ok, %{} = company} <- Client.get("/cnpj/v1/#{cnpj_string}") do
-      {:ok, Company.from_map(company)}
-    end
+         do: Client.get_one("/cnpj/v1/#{cnpj_string}", &Company.from_map/1)
   end
 end

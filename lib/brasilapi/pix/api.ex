@@ -24,9 +24,6 @@ defmodule Brasilapi.Pix.API do
   """
   @spec get_participants() :: {:ok, [Participant.t()]} | {:error, map()}
   def get_participants do
-    with {:ok, participants} when is_list(participants) <- Client.get("/pix/v1/participants") do
-      parsed_participants = Enum.map(participants, &Participant.from_map/1)
-      {:ok, parsed_participants}
-    end
+    Client.get_list("/pix/v1/participants", &Participant.from_map/1)
   end
 end

@@ -11,6 +11,16 @@ defmodule Brasilapi.Client do
   @type success_response :: {:ok, term()}
   @type error_response :: {:error, map()}
   @type response :: success_response() | error_response()
+  @type mapper(result, mapped) :: (result -> mapped)
+
+  @status_messages %{
+    400 => "Bad request",
+    401 => "Unauthorized",
+    403 => "Forbidden",
+    404 => "Not found",
+    422 => "Unprocessable entity",
+    429 => "Rate limit exceeded"
+  }
 
   @doc """
   Makes a GET request to the specified path.
@@ -31,16 +41,7 @@ defmodule Brasilapi.Client do
   """
   @spec get(String.t(), keyword()) :: response()
   def get(path, opts \\ []) do
-    url = build_url(path)
-    req_opts = build_req_options(opts)
-
-    case Req.get(url, req_opts) do
-      {:ok, %Req.Response{status: status, body: body}} ->
-        handle_response(status, body)
-
-      {:error, exception} ->
-        handle_exception(exception)
-    end
+    request(:get, path, opts)
   end
 
   @doc """
@@ -55,16 +56,7 @@ defmodule Brasilapi.Client do
   """
   @spec post(String.t(), term(), keyword()) :: response()
   def post(path, body, opts \\ []) do
-    url = build_url(path)
-    req_opts = build_req_options([json: body] ++ opts)
-
-    case Req.post(url, req_opts) do
-      {:ok, %Req.Response{status: status, body: response_body}} ->
-        handle_response(status, response_body)
-
-      {:error, exception} ->
-        handle_exception(exception)
-    end
+    request(:post, path, [json: body] ++ opts)
   end
 
   @doc """
@@ -79,16 +71,7 @@ defmodule Brasilapi.Client do
   """
   @spec put(String.t(), term(), keyword()) :: response()
   def put(path, body, opts \\ []) do
-    url = build_url(path)
-    req_opts = build_req_options([json: body] ++ opts)
-
-    case Req.put(url, req_opts) do
-      {:ok, %Req.Response{status: status, body: response_body}} ->
-        handle_response(status, response_body)
-
-      {:error, exception} ->
-        handle_exception(exception)
-    end
+    request(:put, path, [json: body] ++ opts)
   end
 
   @doc """
@@ -102,10 +85,37 @@ defmodule Brasilapi.Client do
   """
   @spec delete(String.t(), keyword()) :: response()
   def delete(path, opts \\ []) do
-    url = build_url(path)
-    req_opts = build_req_options(opts)
+    request(:delete, path, opts)
+  end
 
-    case Req.delete(url, req_opts) do
+  @doc false
+  @spec get_list(String.t(), mapper(map(), mapped), keyword()) ::
+          {:ok, [mapped]} | error_response()
+        when mapped: term()
+  def get_list(path, mapper, opts \\ []) when is_function(mapper, 1) do
+    with {:ok, items} when is_list(items) <- get(path, opts) do
+      {:ok, Enum.map(items, mapper)}
+    end
+  end
+
+  @doc false
+  @spec get_one(String.t(), mapper(map(), mapped), keyword()) :: {:ok, mapped} | error_response()
+        when mapped: term()
+  def get_one(path, mapper, opts \\ []) when is_function(mapper, 1) do
+    with {:ok, %{} = item} <- get(path, opts) do
+      {:ok, mapper.(item)}
+    end
+  end
+
+  # Private functions
+
+  @spec request(atom(), String.t(), keyword()) :: response()
+  defp request(method, path, opts) do
+    req_opts =
+      [method: method, url: build_url(path)]
+      |> Keyword.merge(build_req_options(opts))
+
+    case Req.request(req_opts) do
       {:ok, %Req.Response{status: status, body: body}} ->
         handle_response(status, body)
 
@@ -113,8 +123,6 @@ defmodule Brasilapi.Client do
         handle_exception(exception)
     end
   end
-
-  # Private functions
 
   @spec build_url(String.t()) :: String.t()
   defp build_url(path) do
@@ -124,23 +132,14 @@ defmodule Brasilapi.Client do
 
   @spec build_req_options(keyword()) :: keyword()
   defp build_req_options(opts) do
-    retry_attempts = Config.retry_attempts()
-
     default_opts = [
       receive_timeout: Config.timeout()
     ]
 
-    # Only add retry options if retries are enabled
-    default_opts =
-      if retry_attempts > 0 do
-        default_opts ++ [retry: :transient, max_retries: retry_attempts]
-      else
-        default_opts ++ [retry: false, max_retries: 0]
-      end
-
     config_opts = Config.req_options()
 
     default_opts
+    |> Keyword.merge(Config.retry_options())
     |> Keyword.merge(config_opts)
     |> Keyword.merge(opts)
   end
@@ -150,36 +149,12 @@ defmodule Brasilapi.Client do
     {:ok, body}
   end
 
-  defp handle_response(404, body) do
-    {:error, %{status: 404, body: body, message: "Not found"}}
-  end
-
-  defp handle_response(400, body) do
-    {:error, %{status: 400, body: body, message: "Bad request"}}
-  end
-
-  defp handle_response(401, body) do
-    {:error, %{status: 401, body: body, message: "Unauthorized"}}
-  end
-
-  defp handle_response(403, body) do
-    {:error, %{status: 403, body: body, message: "Forbidden"}}
-  end
-
-  defp handle_response(422, body) do
-    {:error, %{status: 422, body: body, message: "Unprocessable entity"}}
-  end
-
-  defp handle_response(429, body) do
-    {:error, %{status: 429, body: body, message: "Rate limit exceeded"}}
-  end
-
   defp handle_response(status, body) when status in 500..599 do
-    {:error, %{status: status, body: body, message: "Server error"}}
+    error_response(status, body, "Server error")
   end
 
   defp handle_response(status, body) do
-    {:error, %{status: status, body: body, message: "Unexpected response"}}
+    error_response(status, body, Map.get(@status_messages, status, "Unexpected response"))
   end
 
   @spec handle_exception(Exception.t()) :: error_response()
@@ -198,5 +173,9 @@ defmodule Brasilapi.Client do
 
   defp handle_exception(exception) do
     {:error, %{reason: exception, message: "Request failed"}}
+  end
+
+  defp error_response(status, body, message) do
+    {:error, %{status: status, body: body, message: message}}
   end
 end

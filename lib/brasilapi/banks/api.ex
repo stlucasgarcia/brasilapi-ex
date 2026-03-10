@@ -5,8 +5,8 @@ defmodule Brasilapi.Banks.API do
   Provides functions to fetch information about Brazilian banks.
   """
 
-  alias Brasilapi.{Client}
   alias Brasilapi.Banks.Bank
+  alias Brasilapi.Client
 
   @doc """
   Fetches information about all Brazilian banks. We filter out any banks that do not have the code or ispb fields.
@@ -25,12 +25,7 @@ defmodule Brasilapi.Banks.API do
   @spec get_banks() :: {:ok, [Bank.t()]} | {:error, map()}
   def get_banks do
     with {:ok, banks} when is_list(banks) <- Client.get("/banks/v1") do
-      valid_banks =
-        banks
-        |> Enum.filter(&valid_bank_data?/1)
-        |> Enum.map(&Bank.from_map/1)
-
-      {:ok, valid_banks}
+      {:ok, banks |> Enum.filter(&valid_bank_data?/1) |> Enum.map(&Bank.from_map/1)}
     end
   end
 
@@ -54,8 +49,7 @@ defmodule Brasilapi.Banks.API do
   """
   @spec get_bank_by_code(integer() | String.t()) :: {:ok, Bank.t()} | {:error, map()}
   def get_bank_by_code(code) when is_binary(code) or is_integer(code) do
-    with {:ok, %{} = bank} <- Client.get("/banks/v1/#{code}"),
-         do: {:ok, Bank.from_map(bank)}
+    Client.get_one("/banks/v1/#{code}", &Bank.from_map/1)
   end
 
   def get_bank_by_code(_code) do

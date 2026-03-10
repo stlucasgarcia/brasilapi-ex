@@ -6,7 +6,7 @@ defmodule Brasilapi.Ibge.API do
   from IBGE (Instituto Brasileiro de Geografia e Estatística).
   """
 
-  alias Brasilapi.{Client}
+  alias Brasilapi.Client
   alias Brasilapi.Ibge.{Municipality, State}
 
   @valid_providers ["dados-abertos-br", "gov", "wikipedia"]
@@ -38,9 +38,7 @@ defmodule Brasilapi.Ibge.API do
   """
   @spec get_states() :: {:ok, [State.t()]} | {:error, map()}
   def get_states do
-    with {:ok, states} when is_list(states) <- Client.get("/ibge/uf/v1") do
-      {:ok, Enum.map(states, &State.from_map/1)}
-    end
+    Client.get_list("/ibge/uf/v1", &State.from_map/1)
   end
 
   @doc """
@@ -76,10 +74,7 @@ defmodule Brasilapi.Ibge.API do
   @spec get_state(String.t() | integer()) :: {:ok, State.t()} | {:error, map()}
   def get_state(code) when is_binary(code) or is_integer(code) do
     normalized_code = normalize_code(code)
-
-    with {:ok, state} when is_map(state) <- Client.get("/ibge/uf/v1/#{normalized_code}") do
-      {:ok, State.from_map(state)}
-    end
+    Client.get_one("/ibge/uf/v1/#{normalized_code}", &State.from_map/1)
   end
 
   def get_state(_code) do
@@ -131,9 +126,7 @@ defmodule Brasilapi.Ibge.API do
   def get_municipalities(uf, opts) when is_binary(uf) do
     with {:ok, providers} <- validate_providers(opts[:providers]),
          url <- build_municipalities_url(uf, providers),
-         {:ok, municipalities} when is_list(municipalities) <- Client.get(url) do
-      {:ok, Enum.map(municipalities, &Municipality.from_map/1)}
-    end
+         do: Client.get_list(url, &Municipality.from_map/1)
   end
 
   def get_municipalities(_uf, _opts) do

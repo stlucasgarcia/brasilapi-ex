@@ -6,8 +6,9 @@ defmodule Brasilapi.Ddd.API do
   including the state and cities that use the specified area code.
   """
 
-  alias Brasilapi.{Client}
+  alias Brasilapi.Client
   alias Brasilapi.Ddd.Info
+  alias Brasilapi.Utils.Digits
 
   @doc """
   Fetches information about a DDD (area code).
@@ -37,8 +38,7 @@ defmodule Brasilapi.Ddd.API do
   @spec get_by_ddd(String.t() | integer()) :: {:ok, Info.t()} | {:error, map()}
   def get_by_ddd(ddd) when is_binary(ddd) or is_integer(ddd) do
     with {:ok, normalized_ddd} <- validate_and_normalize_ddd(ddd),
-         {:ok, %{} = ddd_data} <- Client.get("/ddd/v1/#{normalized_ddd}"),
-         do: {:ok, Info.from_map(ddd_data)}
+         do: Client.get_one("/ddd/v1/#{normalized_ddd}", &Info.from_map/1)
   end
 
   def get_by_ddd(_ddd) do
@@ -49,25 +49,16 @@ defmodule Brasilapi.Ddd.API do
 
   @spec validate_and_normalize_ddd(String.t() | integer()) ::
           {:ok, String.t()} | {:error, map()}
-  defp validate_and_normalize_ddd(ddd) when is_integer(ddd) do
-    ddd
-    |> Integer.to_string()
-    |> String.pad_leading(2, "0")
-    |> validate_and_normalize_ddd
-  end
-
-  defp validate_and_normalize_ddd(ddd) when is_binary(ddd) do
-    digits_only = String.replace(ddd, ~r/\D/, "")
-
-    cond do
-      digits_only == "" ->
+  defp validate_and_normalize_ddd(ddd) do
+    case Digits.normalize_exact(ddd, 2) do
+      {:error, :empty} ->
         {:error, %{message: "DDD must contain only digits"}}
 
-      byte_size(digits_only) != 2 ->
+      {:error, :invalid_length} ->
         {:error, %{message: "DDD must be exactly 2 digits"}}
 
-      true ->
-        {:ok, digits_only}
+      {:ok, digits} ->
+        {:ok, digits}
     end
   end
 end

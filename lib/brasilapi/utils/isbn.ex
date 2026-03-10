@@ -21,6 +21,9 @@ defmodule Brasilapi.Utils.Isbn do
 
   For complete ISBN validation with checksum verification, use a dedicated library.
   """
+  alias Brasilapi.Utils.Digits
+
+  @valid_lengths [10, 13]
 
   @doc """
   Sanitizes and validates an ISBN number.
@@ -55,13 +58,10 @@ defmodule Brasilapi.Utils.Isbn do
   """
   @spec sanitize_and_validate(String.t()) :: {:ok, String.t()} | {:error, map()}
   def sanitize_and_validate(isbn) when is_binary(isbn) do
-    # First sanitize by removing formatting characters (dashes, spaces)
-    sanitized = String.replace(isbn, ~r/[^\d]/, "")
+    sanitized = Digits.only(isbn)
 
-    # Check if length is 10 or 13 digits
     case String.length(sanitized) do
-      10 -> {:ok, sanitized}
-      13 -> {:ok, sanitized}
+      length when length in @valid_lengths -> {:ok, sanitized}
       _ -> {:error, %{message: "Invalid ISBN format. Must be 10 or 13 digits."}}
     end
   end
@@ -131,7 +131,7 @@ defmodule Brasilapi.Utils.Isbn do
   """
   @spec valid_format?(String.t()) :: boolean()
   def valid_format?(isbn) when is_binary(isbn) do
-    String.match?(isbn, ~r/^(\d{10}|\d{13})$/)
+    String.match?(isbn, ~r/^(\d{#{hd(@valid_lengths)}}|\d{#{List.last(@valid_lengths)}})$/)
   end
 
   def valid_format?(_), do: false
@@ -154,6 +154,6 @@ defmodule Brasilapi.Utils.Isbn do
   """
   @spec remove_formatting(String.t()) :: String.t()
   def remove_formatting(isbn) when is_binary(isbn) do
-    String.replace(isbn, ~r/[^\d]/, "")
+    Digits.only(isbn)
   end
 end

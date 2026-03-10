@@ -5,8 +5,8 @@ defmodule Brasilapi.Brokers.API do
   Provides functions to fetch information about CVM-registered brokerage firms.
   """
 
-  alias Brasilapi.Client
   alias Brasilapi.Brokers.Broker
+  alias Brasilapi.Client
   alias Brasilapi.Utils.Cnpj
 
   @doc """
@@ -28,8 +28,7 @@ defmodule Brasilapi.Brokers.API do
   """
   @spec get_brokers() :: {:ok, [Broker.t()]} | {:error, map()}
   def get_brokers do
-    with {:ok, brokers_data} when is_list(brokers_data) <- Client.get("/cvm/corretoras/v1"),
-         do: {:ok, Enum.map(brokers_data, &Broker.from_map/1)}
+    Client.get_list("/cvm/corretoras/v1", &Broker.from_map/1)
   end
 
   @doc """
@@ -62,8 +61,6 @@ defmodule Brasilapi.Brokers.API do
   @spec get_broker_by_cnpj(String.t() | integer()) :: {:ok, Broker.t()} | {:error, map()}
   def get_broker_by_cnpj(cnpj) do
     with {:ok, cnpj_string} <- Cnpj.sanitize_and_validate(cnpj),
-         {:ok, %{} = broker_data} <- Client.get("/cvm/corretoras/v1/#{cnpj_string}") do
-      {:ok, Broker.from_map(broker_data)}
-    end
+         do: Client.get_one("/cvm/corretoras/v1/#{cnpj_string}", &Broker.from_map/1)
   end
 end

@@ -25,8 +25,7 @@ defmodule Brasilapi.Exchange.API do
   """
   @spec get_exchange_currencies() :: {:ok, [Currency.t()]} | {:error, map()}
   def get_exchange_currencies do
-    with {:ok, currencies_data} when is_list(currencies_data) <- Client.get("/cambio/v1/moedas"),
-         do: {:ok, Enum.map(currencies_data, &Currency.from_map/1)}
+    Client.get_list("/cambio/v1/moedas", &Currency.from_map/1)
   end
 
   @doc """
@@ -61,9 +60,11 @@ defmodule Brasilapi.Exchange.API do
           {:ok, DailyExchangeRate.t()} | {:error, map()}
   def get_exchange_rate(currency, date) when is_binary(currency) do
     with {:ok, formatted_date} <- format_date(date),
-         {:ok, %{} = exchange_data} <-
-           Client.get("/cambio/v1/cotacao/#{currency}/#{formatted_date}"),
-         do: {:ok, DailyExchangeRate.from_map(exchange_data)}
+         do:
+           Client.get_one(
+             "/cambio/v1/cotacao/#{currency}/#{formatted_date}",
+             &DailyExchangeRate.from_map/1
+           )
   end
 
   def get_exchange_rate(_currency, _date) do

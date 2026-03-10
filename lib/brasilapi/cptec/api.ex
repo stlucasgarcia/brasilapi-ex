@@ -28,9 +28,7 @@ defmodule Brasilapi.Cptec.API do
   """
   @spec list_cities() :: {:ok, list(City.t())} | {:error, map()}
   def list_cities do
-    with {:ok, cities} when is_list(cities) <- Client.get("/cptec/v1/cidade") do
-      {:ok, Enum.map(cities, &City.from_map/1)}
-    end
+    Client.get_list("/cptec/v1/cidade", &City.from_map/1)
   end
 
   @doc """
@@ -57,10 +55,7 @@ defmodule Brasilapi.Cptec.API do
   @spec search_cities(String.t()) :: {:ok, list(City.t())} | {:error, map()}
   def search_cities(city_name) when is_binary(city_name) do
     encoded_name = URI.encode(city_name)
-
-    with {:ok, cities} when is_list(cities) <- Client.get("/cptec/v1/cidade/#{encoded_name}") do
-      {:ok, Enum.map(cities, &City.from_map/1)}
-    end
+    Client.get_list("/cptec/v1/cidade/#{encoded_name}", &City.from_map/1)
   end
 
   def search_cities(_city_name) do
@@ -82,9 +77,7 @@ defmodule Brasilapi.Cptec.API do
   """
   @spec get_capitals_weather() :: {:ok, list(AirportConditions.t())} | {:error, map()}
   def get_capitals_weather do
-    with {:ok, conditions} when is_list(conditions) <- Client.get("/cptec/v1/clima/capital") do
-      {:ok, Enum.map(conditions, &AirportConditions.from_map/1)}
-    end
+    Client.get_list("/cptec/v1/clima/capital", &AirportConditions.from_map/1)
   end
 
   @doc """
@@ -110,9 +103,11 @@ defmodule Brasilapi.Cptec.API do
   @spec get_airport_weather(String.t()) :: {:ok, AirportConditions.t()} | {:error, map()}
   def get_airport_weather(icao_code) when is_binary(icao_code) do
     with {:ok, normalized_code} <- validate_icao_code(icao_code),
-         {:ok, %{} = conditions} <- Client.get("/cptec/v1/clima/aeroporto/#{normalized_code}") do
-      {:ok, AirportConditions.from_map(conditions)}
-    end
+         do:
+           Client.get_one(
+             "/cptec/v1/clima/aeroporto/#{normalized_code}",
+             &AirportConditions.from_map/1
+           )
   end
 
   def get_airport_weather(_icao_code) do
@@ -138,9 +133,7 @@ defmodule Brasilapi.Cptec.API do
   """
   @spec get_city_forecast(integer()) :: {:ok, CityForecast.t()} | {:error, map()}
   def get_city_forecast(city_code) when is_integer(city_code) do
-    with {:ok, %{} = forecast} <- Client.get("/cptec/v1/clima/previsao/#{city_code}") do
-      {:ok, CityForecast.from_map(forecast)}
-    end
+    Client.get_one("/cptec/v1/clima/previsao/#{city_code}", &CityForecast.from_map/1)
   end
 
   def get_city_forecast(_city_code) do
@@ -171,10 +164,11 @@ defmodule Brasilapi.Cptec.API do
   @spec get_city_forecast(integer(), integer()) :: {:ok, CityForecast.t()} | {:error, map()}
   def get_city_forecast(city_code, days) when is_integer(city_code) and is_integer(days) do
     with {:ok, validated_days} <- validate_days(days),
-         {:ok, %{} = forecast} <-
-           Client.get("/cptec/v1/clima/previsao/#{city_code}/#{validated_days}") do
-      {:ok, CityForecast.from_map(forecast)}
-    end
+         do:
+           Client.get_one(
+             "/cptec/v1/clima/previsao/#{city_code}/#{validated_days}",
+             &CityForecast.from_map/1
+           )
   end
 
   def get_city_forecast(_city_code, _days) do
@@ -200,9 +194,7 @@ defmodule Brasilapi.Cptec.API do
   """
   @spec get_ocean_forecast(integer()) :: {:ok, OceanForecast.t()} | {:error, map()}
   def get_ocean_forecast(city_code) when is_integer(city_code) do
-    with {:ok, %{} = forecast} <- Client.get("/cptec/v1/ondas/#{city_code}") do
-      {:ok, OceanForecast.from_map(forecast)}
-    end
+    Client.get_one("/cptec/v1/ondas/#{city_code}", &OceanForecast.from_map/1)
   end
 
   def get_ocean_forecast(_city_code) do
@@ -233,9 +225,11 @@ defmodule Brasilapi.Cptec.API do
   @spec get_ocean_forecast(integer(), integer()) :: {:ok, OceanForecast.t()} | {:error, map()}
   def get_ocean_forecast(city_code, days) when is_integer(city_code) and is_integer(days) do
     with {:ok, validated_days} <- validate_days(days),
-         {:ok, %{} = forecast} <- Client.get("/cptec/v1/ondas/#{city_code}/#{validated_days}") do
-      {:ok, OceanForecast.from_map(forecast)}
-    end
+         do:
+           Client.get_one(
+             "/cptec/v1/ondas/#{city_code}/#{validated_days}",
+             &OceanForecast.from_map/1
+           )
   end
 
   def get_ocean_forecast(_city_code, _days) do

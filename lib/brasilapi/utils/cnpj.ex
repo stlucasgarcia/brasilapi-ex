@@ -18,6 +18,9 @@ defmodule Brasilapi.Utils.Cnpj do
   For complete CNPJ validation with checksum verification, use a dedicated library
   such as `brcpfcnpj` before calling BrasilAPI functions.
   """
+  alias Brasilapi.Utils.Digits
+
+  @digit_length 14
 
   @doc """
   Sanitizes and validates a CNPJ number.
@@ -51,21 +54,10 @@ defmodule Brasilapi.Utils.Cnpj do
 
   """
   @spec sanitize_and_validate(String.t() | integer()) :: {:ok, String.t()} | {:error, map()}
-  def sanitize_and_validate(cnpj) when is_integer(cnpj) do
-    cnpj
-    |> Integer.to_string()
-    |> String.pad_leading(14, "0")
-    |> sanitize_and_validate()
-  end
-
-  def sanitize_and_validate(cnpj) when is_binary(cnpj) do
-    # First sanitize by removing formatting characters
-    sanitized = String.replace(cnpj, ~r/[^\d]/, "")
-
-    # Check if length is exactly 14 digits
-    case String.length(sanitized) do
-      14 -> {:ok, sanitized}
-      _ -> {:error, %{message: "Invalid CNPJ format. Must be 14 digits."}}
+  def sanitize_and_validate(cnpj) when is_binary(cnpj) or is_integer(cnpj) do
+    case Digits.normalize_exact(cnpj, @digit_length) do
+      {:ok, digits} -> {:ok, digits}
+      {:error, _reason} -> {:error, %{message: "Invalid CNPJ format. Must be 14 digits."}}
     end
   end
 
@@ -122,7 +114,7 @@ defmodule Brasilapi.Utils.Cnpj do
   """
   @spec valid_format?(String.t()) :: boolean()
   def valid_format?(cnpj) when is_binary(cnpj) do
-    String.match?(cnpj, ~r/^\d{14}$/)
+    String.match?(cnpj, ~r/^\d{#{@digit_length}}$/)
   end
 
   def valid_format?(_), do: false
@@ -145,6 +137,6 @@ defmodule Brasilapi.Utils.Cnpj do
   """
   @spec remove_formatting(String.t()) :: String.t()
   def remove_formatting(cnpj) when is_binary(cnpj) do
-    String.replace(cnpj, ~r/[^\d]/, "")
+    Digits.only(cnpj)
   end
 end

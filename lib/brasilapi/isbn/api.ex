@@ -62,14 +62,12 @@ defmodule Brasilapi.Isbn.API do
 
     with {:ok, isbn_string} <- Isbn.sanitize_and_validate(isbn),
          {:ok, providers_param} <- validate_providers(providers),
-         {:ok, %{} = book_data} <- fetch_book_data(isbn_string, providers_param) do
-      {:ok, Book.from_map(book_data)}
-    end
+         do: fetch_book_data(isbn_string, providers_param)
   end
 
   # Private functions
 
-  @spec fetch_book_data(String.t(), String.t()) :: {:ok, map()} | {:error, map()}
+  @spec fetch_book_data(String.t(), String.t()) :: {:ok, Book.t()} | {:error, map()}
   defp fetch_book_data(isbn, providers_param) do
     path = "/isbn/v1/#{isbn}"
 
@@ -79,7 +77,7 @@ defmodule Brasilapi.Isbn.API do
         param -> [providers: param]
       end
 
-    Client.get(path, params: query_params)
+    Client.get_one(path, &Book.from_map/1, params: query_params)
   end
 
   @spec validate_providers(list()) :: {:ok, String.t()} | {:error, map()}
