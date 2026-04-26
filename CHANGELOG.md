@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.0.3] - 2026-04-26
+
+### Changed
+
+- Refactored `Brasilapi.Cnpj.Company.from_map/1` to use a list-driven mapping, replacing ~95 lines of repeated `data["x"]` lookups with a compact field list and shared helpers
+- Simplified `Brasilapi.Exchange.API` date parsing by relying on `Date.from_iso8601/1` reasons (`:invalid_date` vs `:invalid_format`) instead of an extra regex pre-check
+- Removed duplicated `normalize_code/1` helpers from FIPE, IBGE, and NCM API modules in favor of inline string interpolation
+- Tightened `Brasilapi.Utils.Cnpj.valid_format?/1` to use `byte_size` plus a simple `~r/^\d+$/` regex
+- Dropped redundant clauses in `Brasilapi.Cep.API.get_endpoint/1` and `Brasilapi.Cep.Address.parse_location/1`
+
+### Fixed
+
+- `Brasilapi.Client.get_one/3` now returns an explicit `{:error, %{message: "Unexpected response shape"}}` when the upstream payload is not a map, instead of silently leaking the raw value through the `with` chain
+
 ## [1.0.2] - 2026-03-10
 
 ### Added

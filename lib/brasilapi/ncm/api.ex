@@ -114,22 +114,10 @@ defmodule Brasilapi.Ncm.API do
   """
   @spec get_ncm_by_code(String.t() | integer()) :: {:ok, Ncm.t()} | {:error, map()}
   def get_ncm_by_code(code) when is_binary(code) or is_integer(code) do
-    normalized_code = normalize_code(code)
-    Client.get_one("/ncm/v1/#{normalized_code}", &Ncm.from_map/1)
+    Client.get_one("/ncm/v1/#{code}", &Ncm.from_map/1)
   end
 
   def get_ncm_by_code(_code) do
     {:error, %{message: "Code must be a string or integer"}}
-  end
-
-  # Private functions
-
-  @spec normalize_code(String.t() | integer()) :: String.t()
-  defp normalize_code(code) when is_integer(code) do
-    Integer.to_string(code)
-  end
-
-  defp normalize_code(code) when is_binary(code) do
-    code
   end
 end

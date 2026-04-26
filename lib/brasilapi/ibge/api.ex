@@ -73,8 +73,7 @@ defmodule Brasilapi.Ibge.API do
   """
   @spec get_state(String.t() | integer()) :: {:ok, State.t()} | {:error, map()}
   def get_state(code) when is_binary(code) or is_integer(code) do
-    normalized_code = normalize_code(code)
-    Client.get_one("/ibge/uf/v1/#{normalized_code}", &State.from_map/1)
+    Client.get_one("/ibge/uf/v1/#{code}", &State.from_map/1)
   end
 
   def get_state(_code) do
@@ -134,15 +133,6 @@ defmodule Brasilapi.Ibge.API do
   end
 
   # Private functions
-
-  @spec normalize_code(String.t() | integer()) :: String.t()
-  defp normalize_code(code) when is_integer(code) do
-    Integer.to_string(code)
-  end
-
-  defp normalize_code(code) when is_binary(code) do
-    code
-  end
 
   @spec validate_providers(nil | list()) :: {:ok, list()} | {:error, map()}
   defp validate_providers(nil), do: {:ok, []}

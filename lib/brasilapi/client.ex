@@ -102,8 +102,10 @@ defmodule Brasilapi.Client do
   @spec get_one(String.t(), mapper(map(), mapped), keyword()) :: {:ok, mapped} | error_response()
         when mapped: term()
   def get_one(path, mapper, opts \\ []) when is_function(mapper, 1) do
-    with {:ok, %{} = item} <- get(path, opts) do
-      {:ok, mapper.(item)}
+    case get(path, opts) do
+      {:ok, %{} = item} -> {:ok, mapper.(item)}
+      {:ok, _other} -> {:error, %{message: "Unexpected response shape"}}
+      {:error, _} = err -> err
     end
   end
 

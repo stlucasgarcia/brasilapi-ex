@@ -73,7 +73,6 @@ defmodule Brasilapi.Cep.API do
 
   @spec get_endpoint(atom()) :: String.t()
   defp get_endpoint(:v1), do: "/cep/v1"
-  defp get_endpoint(:v2), do: "/cep/v2"
   defp get_endpoint(_), do: "/cep/v2"
 
   @spec validate_and_normalize_cep(String.t() | integer()) ::

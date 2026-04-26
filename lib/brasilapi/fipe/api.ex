@@ -166,10 +166,8 @@ defmodule Brasilapi.Fipe.API do
 
   def get_vehicles(vehicle_type, brand_code, opts)
       when is_binary(vehicle_type) and (is_binary(brand_code) or is_integer(brand_code)) do
-    normalized_brand_code = normalize_code(brand_code)
-
     with {:ok, _} <- validate_vehicle_type(vehicle_type),
-         url <- build_url("/fipe/veiculos/v1/#{vehicle_type}/#{normalized_brand_code}", opts),
+         url <- build_url("/fipe/veiculos/v1/#{vehicle_type}/#{brand_code}", opts),
          do: Client.get_list(url, &Vehicle.from_map/1)
   end
 
@@ -203,10 +201,6 @@ defmodule Brasilapi.Fipe.API do
        %{message: "Invalid FIPE code format. Must be in format XXXXXX-X (e.g., 001004-9)"}}
     end
   end
-
-  @spec normalize_code(String.t() | integer()) :: String.t()
-  defp normalize_code(code) when is_integer(code), do: Integer.to_string(code)
-  defp normalize_code(code) when is_binary(code), do: code
 
   @spec build_url(String.t(), keyword()) :: String.t()
   defp build_url(base_path, opts) do

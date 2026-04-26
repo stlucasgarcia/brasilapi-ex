@@ -86,17 +86,14 @@ defmodule Brasilapi.Exchange.API do
   end
 
   defp format_date(date_string) when is_binary(date_string) do
-    case String.match?(date_string, ~r/^\d{4}-\d{2}-\d{2}$/) do
-      true ->
-        case Date.from_iso8601(date_string) do
-          {:ok, _date} ->
-            {:ok, date_string}
+    case Date.from_iso8601(date_string) do
+      {:ok, _date} ->
+        {:ok, date_string}
 
-          {:error, _} ->
-            {:error, %{message: "Invalid date. Must be a valid date in YYYY-MM-DD format"}}
-        end
+      {:error, :invalid_date} ->
+        {:error, %{message: "Invalid date. Must be a valid date in YYYY-MM-DD format"}}
 
-      false ->
+      {:error, _} ->
         {:error, %{message: "Invalid date format. Must be YYYY-MM-DD"}}
     end
   end

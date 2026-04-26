@@ -84,57 +84,24 @@ defmodule Brasilapi.Cnpj.Company do
           descricao_identificador_matriz_filial: String.t() | nil
         }
 
-  defstruct [
-    :uf,
-    :cep,
-    :qsa,
-    :cnpj,
-    :pais,
-    :email,
-    :porte,
-    :bairro,
-    :numero,
-    :ddd_fax,
-    :municipio,
-    :logradouro,
-    :cnae_fiscal,
-    :codigo_pais,
-    :complemento,
-    :codigo_porte,
-    :razao_social,
-    :nome_fantasia,
-    :capital_social,
-    :ddd_telefone_1,
-    :ddd_telefone_2,
-    :opcao_pelo_mei,
-    :descricao_porte,
-    :codigo_municipio,
-    :cnaes_secundarios,
-    :natureza_juridica,
-    :regime_tributario,
-    :situacao_especial,
-    :opcao_pelo_simples,
-    :situacao_cadastral,
-    :data_opcao_pelo_mei,
-    :data_exclusao_do_mei,
-    :cnae_fiscal_descricao,
-    :codigo_municipio_ibge,
-    :data_inicio_atividade,
-    :data_situacao_especial,
-    :data_opcao_pelo_simples,
-    :data_situacao_cadastral,
-    :nome_cidade_no_exterior,
-    :codigo_natureza_juridica,
-    :data_exclusao_do_simples,
-    :motivo_situacao_cadastral,
-    :ente_federativo_responsavel,
-    :identificador_matriz_filial,
-    :qualificacao_do_responsavel,
-    :descricao_situacao_cadastral,
-    :descricao_tipo_de_logradouro,
-    :descricao_motivo_situacao_cadastral,
-    :descricao_identificador_matriz_filial
-  ]
+  @list_fields ~w(qsa cnaes_secundarios regime_tributario)a
+
+  @fields ~w(
+    uf cep qsa cnpj pais email porte bairro numero ddd_fax municipio logradouro
+    cnae_fiscal codigo_pais complemento codigo_porte razao_social nome_fantasia
+    capital_social ddd_telefone_1 ddd_telefone_2 opcao_pelo_mei descricao_porte
+    codigo_municipio cnaes_secundarios natureza_juridica regime_tributario
+    situacao_especial opcao_pelo_simples situacao_cadastral data_opcao_pelo_mei
+    data_exclusao_do_mei cnae_fiscal_descricao codigo_municipio_ibge
+    data_inicio_atividade data_situacao_especial data_opcao_pelo_simples
+    data_situacao_cadastral nome_cidade_no_exterior codigo_natureza_juridica
+    data_exclusao_do_simples motivo_situacao_cadastral ente_federativo_responsavel
+    identificador_matriz_filial qualificacao_do_responsavel
+    descricao_situacao_cadastral descricao_tipo_de_logradouro
+    descricao_motivo_situacao_cadastral descricao_identificador_matriz_filial
+  )a
+
+  defstruct @fields
 
   @doc """
   Converts a map from the API response to a Company struct.
@@ -148,56 +115,14 @@ defmodule Brasilapi.Cnpj.Company do
   """
   @spec from_map(map()) :: t()
   def from_map(data) when is_map(data) do
-    %__MODULE__{
-      uf: data["uf"],
-      cep: data["cep"],
-      qsa: data["qsa"] || [],
-      cnpj: data["cnpj"],
-      pais: data["pais"],
-      email: data["email"],
-      porte: data["porte"],
-      bairro: data["bairro"],
-      numero: data["numero"],
-      ddd_fax: data["ddd_fax"],
-      municipio: data["municipio"],
-      logradouro: data["logradouro"],
-      cnae_fiscal: data["cnae_fiscal"],
-      codigo_pais: data["codigo_pais"],
-      complemento: data["complemento"],
-      codigo_porte: data["codigo_porte"],
-      razao_social: data["razao_social"],
-      nome_fantasia: data["nome_fantasia"],
-      capital_social: data["capital_social"],
-      ddd_telefone_1: data["ddd_telefone_1"],
-      ddd_telefone_2: data["ddd_telefone_2"],
-      opcao_pelo_mei: data["opcao_pelo_mei"],
-      descricao_porte: data["descricao_porte"],
-      codigo_municipio: data["codigo_municipio"],
-      cnaes_secundarios: data["cnaes_secundarios"] || [],
-      natureza_juridica: data["natureza_juridica"],
-      regime_tributario: data["regime_tributario"] || [],
-      situacao_especial: data["situacao_especial"],
-      opcao_pelo_simples: data["opcao_pelo_simples"],
-      situacao_cadastral: data["situacao_cadastral"],
-      data_opcao_pelo_mei: data["data_opcao_pelo_mei"],
-      data_exclusao_do_mei: data["data_exclusao_do_mei"],
-      cnae_fiscal_descricao: data["cnae_fiscal_descricao"],
-      codigo_municipio_ibge: data["codigo_municipio_ibge"],
-      data_inicio_atividade: data["data_inicio_atividade"],
-      data_situacao_especial: data["data_situacao_especial"],
-      data_opcao_pelo_simples: data["data_opcao_pelo_simples"],
-      data_situacao_cadastral: data["data_situacao_cadastral"],
-      nome_cidade_no_exterior: data["nome_cidade_no_exterior"],
-      codigo_natureza_juridica: data["codigo_natureza_juridica"],
-      data_exclusao_do_simples: data["data_exclusao_do_simples"],
-      motivo_situacao_cadastral: data["motivo_situacao_cadastral"],
-      ente_federativo_responsavel: data["ente_federativo_responsavel"],
-      identificador_matriz_filial: data["identificador_matriz_filial"],
-      qualificacao_do_responsavel: data["qualificacao_do_responsavel"],
-      descricao_situacao_cadastral: data["descricao_situacao_cadastral"],
-      descricao_tipo_de_logradouro: data["descricao_tipo_de_logradouro"],
-      descricao_motivo_situacao_cadastral: data["descricao_motivo_situacao_cadastral"],
-      descricao_identificador_matriz_filial: data["descricao_identificador_matriz_filial"]
-    }
+    struct(__MODULE__, Map.new(@fields, &{&1, fetch_field(data, &1)}))
+  end
+
+  defp fetch_field(data, field) when field in @list_fields do
+    Map.get(data, Atom.to_string(field)) || []
+  end
+
+  defp fetch_field(data, field) do
+    Map.get(data, Atom.to_string(field))
   end
 end
