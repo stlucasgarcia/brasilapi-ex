@@ -114,7 +114,7 @@ defmodule Brasilapi.Utils.Cnpj do
   """
   @spec valid_format?(String.t()) :: boolean()
   def valid_format?(cnpj) when is_binary(cnpj) do
-    String.match?(cnpj, ~r/^\d{#{@digit_length}}$/)
+    byte_size(cnpj) == @digit_length and String.match?(cnpj, ~r/^\d+$/)
   end
 
   def valid_format?(_), do: false

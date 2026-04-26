@@ -78,8 +78,6 @@ defmodule Brasilapi.Cep.Address do
 
   # Private functions
 
-  defp parse_location(nil), do: nil
-
   defp parse_location(%{} = location) do
     %{
       type: Map.get(location, "type"),
